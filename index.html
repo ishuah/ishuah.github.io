@@ -1,0 +1,78 @@
+<html lang="en">
+  <head>
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="assets/css/foundation.min.css">
+  <link type="text/css" rel="stylesheet" href="assets/css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/custom.css">
+   <link href="assets/foundation-icons/foundation-icons.css" rel="stylesheet">
+  </head>
+  <body>
+  		<div class="fixed">
+	  		<nav class="top-bar hide-for-small" data-topbar>
+				<ul class="title-area">
+					<li class="name">
+					<h1><a href="#">IK</a></h1>
+					</li>
+					<li class="toggle-topbar menu-icon"><a href=""><span>Menu</span></a></li>
+				</ul>
+				<section class="top-bar-section">
+				    <!-- Right Nav Section -->
+				    <ul class="right">
+				    	<li ><a id="home-button" href="#home">HOME</a></li>
+				    	<li ><a id="about-button" href="#about">WHO AM I?</a></li>
+				    	<li ><a target="blank_" href="http://blog.ishuah.com"><i class="fi-link"></i> BLOG</a></li>
+				    </ul>
+				</section>
+			</nav>
+
+		</div>
+  	    <div id="home" class="full-cont text-center dark jumbo">
+	  	    <div class="  full-img "></div>
+	  	    <div class="full-overlay"></div>
+	  	    <div class="row">
+	  	    	<div class="large-10 columns vert-text">
+	  	    		<h1>Ishuah Kariuki</h1>
+	  	   			<p>Full Stack Web Developer</p>
+	  	   			<a href="http://stackoverflow.com/users/2734881/ishuah"><i class="fi-social-stack-overflow"></i></a>
+	  	   			<a href="https://github.com/ishuah91"><i class="fi-social-github"></i></a>
+	  	   			<a href="https://twitter.com/ishuah_"><i class="fi-social-twitter"></i></a>
+	  	    	</div>
+	  	    </div>
+	  	    
+  	    </div>
+  	    <div id="about" class="full-cont row padded-extra">
+  	    	<div class="large-10 large-offset-1 columns text-center">
+  	    		<h1>Who am I?</h1>
+  	    		<p class="lead">Call me Ish. I'm a full stack web developer biased towards backend development.</p>
+  	    		<p class="lead">I build awesome things <a target="blank_" href="http://spatialcollective.com">@Spatial Collective</a>.</p>
+  	    		<p class="lead">Based in Nairobi, Kenya.</p>
+  	    		<p class="lead"><a href="mailto:kariuki@ishuah.com">kariuki (at) ishuah.com</a></p>
+  	    		<p>More to come.</p>
+  	    	</div>
+  	    	
+  	    </div>
+
+  	    	<script src="assets/js/jquery.js"></script>
+			<script src="assets/js/foundation/foundation.js"></script>
+			<script src="assets/js/foundation/foundation.magellan.js"></script>
+			<script src="assets/js/foundation/foundation.topbar.js"></script>
+			<script>
+			$(document).foundation();
+
+			$('#home-button').click(function(e){
+				e.preventDefault();
+				$('html, body').animate({
+        			scrollTop: $("#home").offset().top - 45
+    				}, 500);
+			});
+
+			$('#about-button').click(function(e){
+				e.preventDefault();
+				$('html, body').animate({
+        			scrollTop: $("#about").offset().top
+    				}, 500);
+			});
+				
+			</script>
+  </body>
+</html>
