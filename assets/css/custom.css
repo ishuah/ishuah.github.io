@@ -49,7 +49,7 @@ h1 {
     display:block;position:absolute;z-index:-1;
     min-width:100%;
     min-height:100%;
-    background:transparent url("../img/bg.jpg") center center no-repeat;
+    background:transparent url("../img/fire.jpg") center center no-repeat;
     background-size:cover;
 }
 
