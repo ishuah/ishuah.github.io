@@ -45,12 +45,19 @@ h1 {
 	text-transform: uppercase;
 }
 
+@-webkit-keyframes pulse  {
+	0% {background-color: #45CEEF;} 
+	25% {background-color: #28774F;}
+	50% {background-color: #338A2E;}
+	75% {background-color: #99D2E4;}
+	100% {background-color: #D8CAB4;}
+}
+
 .full-img {
     display:block;position:absolute;z-index:-1;
     min-width:100%;
     min-height:100%;
-    background:transparent url("../img/fire.jpg") center center no-repeat;
-    background-size:cover;
+    -webkit-animation: pulse 35s infinite;
 }
 
 .full-overlay {
@@ -80,4 +87,84 @@ h1 {
 
 .padded-extra{
 	padding: 12% 0;
+}
+
+.loader,
+.loader:before,
+.loader:after {
+	background: #FFF;
+	-webkit-animation: load1 1s infinite ease-in-out;
+	animation: load1 1s infinite ease-in-out;
+	width: 0.3em;
+	height: 4em;
+}
+.loader:before,
+.loader:after {
+	position: absolute;
+	top: 0;
+	content: '';
+}
+.loader:before {
+	left: -1.5em;
+	-webkit-animation-delay: -0.32s;
+	animation-delay: -0.32s;
+}
+.loader {
+	text-indent: -9999em;
+	margin: 8em 8em;
+	float: right;
+	position: relative;
+	font-size: 11px;
+	-webkit-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-animation-delay: -0.16s;
+	animation-delay: -0.16s;
+}
+.loader:after {
+	left: 1.5em;
+}
+@-webkit-keyframes load1 {
+	0%,
+	80%,
+	100% {
+		box-shadow: 0 0 #FFF;
+		height: 4em;
+	}
+	40% {
+		box-shadow: 0 -2em #ffffff;
+	height: 5em;
+	}
+}
+@keyframes load1 {
+	0%,
+	80%,
+	100% {
+		box-shadow: 0 0 #FFF;
+		height: 4em;
+	}
+	40% {
+		box-shadow: 0 -2em #ffffff;
+		height: 5em;
+	}
+}
+
+
+
+.attribution{
+	float: left;
+	position: absolute;
+	bottom: 0;
+	background: #333;
+	padding: 0.7em;
+	display: none;
+}
+
+.attribution a {
+	font-size:1em;
+	color: white;
+	text-decoration: blink;
+}
+.attribution a:hover{
+	text-decoration: underline;
 }
