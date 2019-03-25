@@ -1,108 +1,42 @@
-<html lang="en">
-  <head>
-  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
-  <link type="text/css" rel="stylesheet" href="assets/css/foundation.min.css">
-  <link type="text/css" rel="stylesheet" href="assets/css/normalize.css">
-  <link rel="stylesheet" type="text/css" href="assets/css/custom.css">
-   <link href="assets/foundation-icons/foundation-icons.css" rel="stylesheet">
-  </head>
-  <body>
-  		<div class="fixed">
-	  		<nav class="top-bar hide-for-small" data-topbar>
-				<ul class="title-area">
-					<li class="name">
-					<h1><a href="#">IK</a></h1>
-					</li>
-					<li class="toggle-topbar menu-icon"><a href=""><span>Menu</span></a></li>
-				</ul>
-				<section class="top-bar-section">
-				    <!-- Right Nav Section -->
-				    <ul class="right">
-				    	<li ><a id="home-button" href="#home">HOME</a></li>
-				    	<li ><a id="about-button" href="#about">WHO AM I?</a></li>
-				    	<li ><a target="blank_" href="http://blog.ishuah.com"><i class="fi-link"></i> BLOG</a></li>
-				    </ul>
-				</section>
-			</nav>
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Ishuah Kariuki</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="ishuah kariuki wild mannered software engineer kenya" />
+		<link rel="stylesheet" href="assets/css/main.min.css" />
+		<link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+	</head>
+	<body class="is-preload">
 
-		</div>
-  	    <div id="home" class="full-cont text-center dark jumbo">
-	  	    <div class="  full-img ">
-	  	    	<div class="loader">Loading...</div>
-	  	    </div>
-	  	    <div class="full-overlay"></div>
-	  	    <div class="row">
-	  	    	<div class="large-10 columns vert-text">
-	  	    		<h1>Ishuah Kariuki</h1>
-	  	   			<p>Software Engineer</p>
-	  	   			<a href="http://stackoverflow.com/users/2734881/ishuah"><i class="fi-social-stack-overflow"></i></a>
-	  	   			<a href="https://github.com/ishuah"><i class="fi-social-github"></i></a>
-	  	   			<a href="https://twitter.com/ishuah_"><i class="fi-social-twitter"></i></a>
-	  	    	</div>
-	  	    </div>
-	  	    <div class="attribution">
-				<a href="" target="blank"></a>
+			<div id="wrapper">
+
+					<section class="intro">
+						<header>
+							<h1>Ishuah Kariuki</h1>
+							<p>Wild Mannered</p>
+							<ul class="icons">
+										<li><a href="https://twitter.com/ishuah_" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+										<li><a href="https://www.instagram.com/is.huah/" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+										<li><a href="https://www.linkedin.com/in/ishuah/" class="icon fa-linkedin"><span class="label">LinkedIn</span></a></li>
+										<li><a href="https://github.com/ishuah" class="icon fa-github"><span class="label">GitHub</span></a></li>
+									</ul>
+							
+						</header>
+						<div class="content">
+							<span class="image fill" data-position="center"><img src="images/collage.jpeg" alt="" /></span>
+						</div>
+					</section>
 			</div>
-  	    </div>
-  	    <div id="about" class="full-cont row padded-extra">
-  	    	<div class="large-10 large-offset-1 columns text-center">
-  	    		<h1>About Ish</h1>
-  	    		<p class="lead">Software Engineer</p>
-  	    		<p class="lead">Software engineer at <a href="https://www.brck.com/">BRCK</a></p>
-  	    		<p class="lead">Based in Nairobi, Kenya.</p>
-  	    		<p class="lead"><a href="mailto:kariuki@ishuah.com">kariuki (at) ishuah.com</a></p>
-  	    	</div>
-  	    	
-  	    </div>
 
-  	    	<script src="assets/js/jquery.js"></script>
-			<script src="assets/js/foundation/foundation.js"></script>
-			<script src="assets/js/foundation/foundation.magellan.js"></script>
-			<script src="assets/js/foundation/foundation.topbar.js"></script>
-			<script src="assets/js/jquery.preload.min.js"></script>
-			<script>
-			$(document).foundation();
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.min.js"></script>
+			<script src="assets/js/main.min.js"></script>
 
-			$('#home-button').click(function(e){
-				e.preventDefault();
-				$('html, body').animate({
-        			scrollTop: $("#home").offset().top - 45
-    				}, 500);
-			});
-
-			$('#about-button').click(function(e){
-				e.preventDefault();
-				$('html, body').animate({
-        			scrollTop: $("#about").offset().top
-    				}, 500);
-			});
-			
-			$.ajax({
-				url: "https://api.imgur.com/3/gallery/r/earthporn/hot/",
-				beforeSend: function( xhr ) {
-					xhr.setRequestHeader("Authorization", "Client-ID c7b5e54af3a2fdf");
-				}
-			}).done(function(data){
-				random = Math.round(Math.random() * 59);
-				$.preload(data["data"][random].link, 1, function(){
-					console.log(this[0]);
-					//$(".full-img").css("transition", "background 1s ease");
-					$(".full-img").css("background", "transparent url('"+this[0]+"') center center no-repeat");
-					$(".full-img").css("background-size", "cover");
-					$(".attribution a").attr('href', "http://imgur.com/"+data["data"][random].id);
-					$(".attribution a").text(data["data"][random].title);
-					$(".attribution").show();
-					$(".loader").hide();
-				});
-				
-			}).fail(function(){
-				$(".full-img").css("background", "transparent url('assets/img/fire.jpg') center center no-repeat");
-				$(".full-img").css("background-size", "cover");
-				$(".attribution a").attr('href', "http://upwithhope.blogspot.com/2014/11/hijinx-with-hippos.html");
-				$(".attribution a").text("Hijinx with Hippos by Nathaniel Canuel");
-				$(".attribution").show();
-				$(".loader").hide();
-			});
-			</script>
-  </body>
+	</body>
 </html>
