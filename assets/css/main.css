@@ -3191,11 +3191,11 @@ input, select, textarea {
 		}
 
 /* Wrapper */
-
-	#wrapper {
-		position: relative;
-		width: 100vw;
-	}
+		#wrapper {
+			position: relative;
+			width: 100vw;
+			padding: 0 0 10rem 0;
+		}
 
 		#wrapper:before {
 			background-attachment: fixed;
