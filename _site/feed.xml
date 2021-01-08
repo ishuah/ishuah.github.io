@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ishuah Kariuki</title>
+    <description>Free Spirit</description>
+    <link>https://ishuah.com//</link>
+    <atom:link href="https://ishuah.com//feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 08 Jan 2021 19:35:42 +0300</pubDate>
+    <lastBuildDate>Fri, 08 Jan 2021 19:35:42 +0300</lastBuildDate>
+    <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>Hover As An Offline Fallback</title>
+        <description>&lt;p&gt;A fallback is defined as a contingency option to be taken if the preferred choice is unavailable. Hover is an Android SDK that automates existing USSD sessions in the background of Android applications. We will set up a USSD channel (with a USSD backend), configure an action on the Hover dashboard and integrate the action as an offline fallback in an Android app.&lt;/p&gt;
+
+&lt;p&gt;USSD has two modes of operation, USSD PULL, which is mobile initiated and USSD PUSH, which is network initiated. For this fallback use-case, we’ll be using the mobile initiated mode to communicate data between the app and server. The USSD protocol will serve as a transport layer and USSD messages will be the data packets communicated between the app and the server. Hover will be the “USSD client” for the Android app, capable of sending and receiving USSD messages.&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card kg-card-hascaption&quot;&gt;&lt;img src=&quot;/images/ussd-flow-2.jpg&quot; class=&quot;kg-image&quot; /&gt;&lt;figcaption&gt;image 1.1&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;p&gt;The maximum number of characters in a USSD message varies between carriers. Safaricom (KE) has a limit of 160 characters sent from the network from the user and a user input limit of 80 characters. Similarly, USSD session length varies between 90-180 seconds, depending on the carrier.&lt;/p&gt;
+
+&lt;h3 id=&quot;architecture&quot;&gt;Architecture&lt;/h3&gt;
+&lt;figure class=&quot;kg-card kg-image-card kg-card-hascaption&quot;&gt;&lt;img src=&quot;/images/architecture.jpg&quot; class=&quot;kg-image&quot; /&gt;&lt;figcaption&gt;image 1.2&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;p&gt;For the purpose of this demonstration, we’ll be sending a set of key/value pairs to the server. The flow involves four messages sent between the mobile app and the server:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Mobile dials USSD code, initiating a USSD session&lt;br /&gt;
+    2. Server responds with the message &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;send data&lt;/code&gt;, awaiting input&lt;br /&gt;
+    3. Mobile sends url query string&lt;br /&gt;
+    4. Server receives and persists the data; responds with a final success message&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;We’ll use the Hover SDK to automate these four steps.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-ussd-gateway&quot;&gt;The USSD Gateway&lt;/h3&gt;
+
+&lt;p&gt;The first step is setting up a channel on the USSD Gateway. Unlike most protocols, USSD channels are limited to the country/region that the providing telecommunication company operates in. For the purpose of this demo I’ve used a shared USSD channel, * 384 *94#, provided by &lt;a href=&quot;https://africastalking.com/&quot;&gt;Africa’s Talking&lt;/a&gt;. This short code is only available on Safaricom (KE) and Orange (KE) networks. Dialing the USSD code gives us the following message:&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card&quot;&gt;&lt;img src=&quot;/images/Screenshot_20200518_164016-1.jpg&quot; class=&quot;kg-image&quot; /&gt;&lt;/figure&gt;
+
+&lt;p&gt;That’s because we haven’t set up the callback function that will read and respond to USSD requests. USSD response messages are in plain text beginning with the keyword &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CON&lt;/code&gt; if the session is ongoing. If the response message is the last for the session, begin with the keyword &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;END&lt;/code&gt;. A simple USSD callback function that responds request with the message &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Welcome to Hover&lt;/code&gt; would look like this:&lt;/p&gt;
+
+&lt;!--kg-card-begin: markdown--&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;# Python 3.8.2
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ussd_callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;END&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Welcome&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Hover&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;!--kg-card-end: markdown--&gt;
+
+&lt;p&gt;The complete callback function for the architecture described above (image 1.2) looks like this:&lt;/p&gt;
+
+&lt;!--kg-card-begin: markdown--&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;    &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;urllib.parse&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;save_report&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse_qs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;keep_blank_values&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'text'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;END&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bad&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'text'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;# Respond with the text `send input`, expect data
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CON&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;send&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;# Parse url query string
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse_qs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;# If the data sent is malformed, respond with `bad request`
+&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;# and end the session
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;bool&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;END&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bad&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;# Process, persist, analyze data
+&lt;/span&gt;        
+        &lt;span class=&quot;c1&quot;&gt;# End session, `success`
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;END&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;!--kg-card-end: markdown--&gt;
+
+&lt;p&gt;The example above is Python 3.8.2 code deployed as a serverless function on AWS. I won’t dig deep on setting up a callback function in this blog post because a lot of the technical input is subjective based on language choice and deployment options. Africa’s Talking USSD API sends a post request to your callback function with &lt;a href=&quot;https://build.at-labs.io/docs/ussd%2Foverview&quot;&gt;five parameters as described in their documentation&lt;/a&gt;. In the example, we read the &lt;em&gt;text&lt;/em&gt; field, which contains the user input. If the text field is empty then that means the session has just been initiated and the function responses with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CON send data&lt;/code&gt;. Otherwise, we try parse the text field (assuming it’s url encoded) and end the session.&lt;/p&gt;
+
+&lt;p&gt;Dialing  * 384 *94# now gives you the following messages:&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card kg-width-full&quot;&gt;&lt;img src=&quot;/images/Screenshot_20200518-164351-1.jpg&quot; class=&quot;kg-image&quot; /&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;the-hover-dashboard&quot;&gt;The Hover Dashboard&lt;/h3&gt;
+
+&lt;p&gt;Now we have a mature USSD interface that we can use to send data to our backend. The next step is integrating Hover to automate interactions with this interface. If you’re not familiar with creating actions and parsers on our dashboard, &lt;a href=&quot;https://docs.usehover.com/actions&quot;&gt;you can read through our documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card kg-card-hascaption&quot;&gt;&lt;img src=&quot;/images/offline-fallback-action.png&quot; class=&quot;kg-image&quot; /&gt;&lt;figcaption&gt;image 1.3 Offline Fallback Action&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;p&gt;The image above is an action configuration for our USSD interface. There’s one step configured, a variable that’s a direct response to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;send data&lt;/code&gt; prompt.&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card kg-card-hascaption&quot;&gt;&lt;img src=&quot;/images/offline-fallback-parsers.png&quot; class=&quot;kg-image&quot; /&gt;&lt;figcaption&gt;image 1.4&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;!--
+The action has two parsers; a success parser and a failure parser. The success parser matches the message _success_, denoting a successful end of the USSD session. Similarly, the failure parser matches the message _bad request_, denoting a failed session.
+
+### The Hover SDK
+
+The final step is automating this USSD action from an Android app. This part requires the Hover SDK to run, instructions on how to[install it are in our documentation](https://docs.usehover.com/installation).
+
+&lt;!--kg-card-begin: markdown--&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;sendData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setOnClickListener&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“”&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;report_title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isNotEmpty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;report_title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;
+
+            &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hungry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isChecked&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plus&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hungry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plus&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hungry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+            
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;intensity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isNotEmpty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plus&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;intensity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;intensity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            
+            &lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Input&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RatingBar&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plus&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mood&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mood&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isNotEmpty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HoverParameters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ACTION_ID&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;extra&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buildIntent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+                &lt;span class=&quot;n&quot;&gt;startActivityForResult&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;Toast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;makeText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Nothing&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;!”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Toast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;LENGTH_LONG&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;show&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;!--kg-card-end: markdown--&gt;
+
+&lt;p&gt;The example above is in Kotlin and it demonstrated how you can run the action we created before with a valid payload. In this specific case, a valid payload means a URL encoded key/value pairs separated by a semicolon. Example:&lt;/p&gt;
+
+&lt;!--kg-card-begin: markdown--&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-url&quot; data-lang=&quot;url&quot;&gt;activity=idle;course=818;altitude=1780.91;path=Ngong+road&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;!--kg-card-end: markdown--&gt;
+
+&lt;p&gt;Africa’s Talking’s USSD API posts query string encoded parameters to the callback URL and the individual parameters are separated by an ampersand (&amp;amp;). This means that we can’t use the ampersand (&amp;amp;) in our query string that will sit in the &lt;em&gt;text&lt;/em&gt; parameter, that’s why I’ve intentionally used the semicolon separator in the schema above. The semicolon separator is illegal according to the &lt;a href=&quot;https://www.w3.org/TR/2014/REC-html5-20141028/forms.html#url-encoded-form-data&quot;&gt;2014 W3C recommendation&lt;/a&gt; but &lt;a href=&quot;https://github.com/python/cpython/blob/3.8/Lib/urllib/parse.py#L375&quot;&gt;Python 3 still supports it&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Running the action described above (on an Android phone with no internet connectivity) will result in the following screens:&lt;/p&gt;
+
+&lt;figure class=&quot;kg-card kg-image-card&quot;&gt;&lt;img src=&quot;/images/offline-fallback-screens.jpg&quot; class=&quot;kg-image&quot; /&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This demonstration shows how you can send data from an offline phone to your server but since the flow of data is bidirectional, you can also send a payload from your server to your app.&lt;/p&gt;
+
+&lt;p&gt;Due to the restrictions in message size and session length, you can only send lean data via USSD.  I used the query string schema because of the limited payload size but any schema/encoding can be used as long as the payload size is not exceeded. You can send multiple messages in sequence as long as the session is still valid. This means that you can implement a chunking algorithm to send data in sequence.&lt;/p&gt;
+
+&lt;p&gt;Originally posted on the &lt;a href=&quot;https://blog.usehover.com/hover-offline-fallback/&quot;&gt;Hover blog&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 26 May 2020 10:28:22 +0300</pubDate>
+        <link>https://ishuah.com//2020/05/26/hover-offline-fallback/</link>
+        <guid isPermaLink="true">https://ishuah.com//2020/05/26/hover-offline-fallback/</guid>
+        
+        <category>ussd</category>
+        
+        <category>offline-fallback</category>
+        
+        <category>android-sdk</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Preact-Rails Gem&amp;#58; Preact integration for Ruby on Rails.</title>
+        <description>&lt;p&gt;Our vision at Hover is to empower developers with resources, services, and tools to build for local communities at global scale. As part of this vision, we’re happy to announce a new open source gem, &lt;a href=&quot;https://github.com/UseHover/preact-rails&quot;&gt;preact-rails&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;A few weeks ago we wrote about how our &lt;a href=&quot;https://medium.com/use-hover/our-developers-outgrew-our-mvp-83221f83bb77&quot;&gt;developers outgrew our dashboard&lt;/a&gt; within two months of our official launch. We took this as an opportunity to improve our dashboard UI and UX.&lt;/p&gt;
+
+&lt;p&gt;The first step was picking a javascript UI library. We had a lot of options but the ones that stood out were Vue.js and React. Part of the engineering team was familiar with React and it proved robust enough so we went ahead and picked that. You’re probably wondering why I’m mentioning React when the title clearly states “Preact”. Keep reading, it gets better.&lt;/p&gt;
+
+&lt;p&gt;Our dashboard is built on Ruby on Rails which is, by all accounts, very opinionated. Decoupling the front-end to an independent project would cause a lot of integration pains, the biggest being managing user sessions without compromising security. We wanted to upgrade the front-end without committing major changes to the back-end engine. The driving factor here was time, we didn’t have enough of it (do we ever?).&lt;/p&gt;
+
+&lt;p&gt;Taking this into consideration, we went back to our javascript UI library choice, React. We chose react before we made the choice not to build a whole front-end project on it’s own. The most feasible option was to serve react components on top of Rails views. It’s minimal and it serves our purpose of not intruding on the back-end and there was a gem just for this, &lt;a href=&quot;https://github.com/reactjs/react-rails&quot;&gt;react-rails&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We started testing the gem by building a few simple components: buttons and forms. Around this time &lt;a href=&quot;https://medium.com/u/50dd4d42d4e9&quot;&gt;David Kutalek&lt;/a&gt; came across &lt;a href=&quot;https://preactjs.com/&quot;&gt;Preact&lt;/a&gt; (mentioned to him by our head of design, &lt;a href=&quot;https://medium.com/u/fe7d40e3c821&quot;&gt;Justin Scherer&lt;/a&gt;). We were intrigued. In a nutshell, Preact is a fast 3kB alternative to React. There are subtle differences that are addressed by a compatibility layer &lt;a href=&quot;https://github.com/developit/preact-compat&quot;&gt;preact-compat&lt;/a&gt;. We wanted to test it out before we jumped in head first. There was one issue: we couldn’t find a gem similar to &lt;a href=&quot;https://github.com/reactjs/react-rails&quot;&gt;react-rails&lt;/a&gt;, a Preact implementation for Ruby on Rails. That’s when &lt;a href=&quot;https://github.com/UseHover/preact-rails&quot;&gt;preact-rails&lt;/a&gt; was conceptualized. Inspired (and heavily influenced) by &lt;a href=&quot;https://github.com/reactjs/react-rails&quot;&gt;react-rails&lt;/a&gt;, we started building a Preact implementation for Ruby on Rails.&lt;/p&gt;
+
+&lt;p&gt;This is where we get a tiny bit technical. There are two parts of this project. The first part is the &lt;a href=&quot;https://rubygems.org/gems/preact-rails&quot;&gt;ruby gem&lt;/a&gt;, aptly named preact-rails. The gem serves one purpose, to make &lt;a href=&quot;https://github.com/UseHover/preact-rails/blob/master/lib/preact/view_helper.rb#L2&quot;&gt;preact_component&lt;/a&gt; available as a view helper. This view helper takes in three variables, a component name, component props and component options and returns a div DOM node with the properties &lt;em&gt;data-preact-class&lt;/em&gt; and &lt;em&gt;data-preact-props&lt;/em&gt;. That’s a lot of confusing words, let me demonstrate.&lt;/p&gt;
+
+&lt;p&gt;In your view, you call preact_component like so:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;  &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= preact_component(“SimpleButton”, { label: “Start” }) %&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Where &lt;em&gt;“SimpleButton”&lt;/em&gt; is the Preact component name, &lt;em&gt;label&lt;/em&gt; is a prop and &lt;em&gt;“Start”&lt;/em&gt; is a prop value. And this is what gets rendered when you load the view on a browser:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“SimpleButton”&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-props=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“{'label':'Start'}”&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;That’s the first part. The second part of the project is an npm package, &lt;a href=&quot;https://www.npmjs.com/package/preact_ujs&quot;&gt;preact_ujs&lt;/a&gt;. (UJS stands for Unobtrusive JavaScript). This package takes the div rendered above and inflates the named Preact component. This is the complex part but I’ll try make it comprehendible.&lt;/p&gt;
+
+&lt;p&gt;Let’s start with the SimpleButtonComponent, defined as such:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;  &lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Component&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;preact&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;
+  
+  &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SimpleButton&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Component&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;button&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/button&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;)
+&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The component returns a button DOM element with the property &lt;em&gt;label&lt;/em&gt; as the child node. Now, back to preact_ujs. This package has a function &lt;a href=&quot;https://github.com/UseHover/preact-rails/blob/master/preact_ujs/index.js#L19&quot;&gt;mountComponent&lt;/a&gt; where all the action happens. It starts by finding all DOM components with the attribute &lt;em&gt;data-preact-class,&lt;/em&gt; loops through each of them &lt;a href=&quot;https://github.com/UseHover/preact-rails/blob/master/preact_ujs/index.js#L25&quot;&gt;finding the component class definition&lt;/a&gt; and &lt;a href=&quot;https://github.com/UseHover/preact-rails/blob/master/preact_ujs/index.js#L27&quot;&gt;parsing the props&lt;/a&gt;. Finally, &lt;a href=&quot;https://github.com/UseHover/preact-rails/blob/master/preact_ujs/index.js#L28&quot;&gt;it renders the component&lt;/a&gt;, that’s it!&lt;/p&gt;
+
+&lt;p&gt;That’s the inner workings of the gem, you can take a closer look on the &lt;a href=&quot;https://github.com/UseHover/preact-rails&quot;&gt;github repo&lt;/a&gt;. We have complete setup instructions on the README.&lt;/p&gt;
+
+&lt;p&gt;We used this gem to test Preact and we loved it. We really didn’t need all the rich features offered by React so the initial proposition attracted us. Three sprints later we launched our new dashboard. So far user feedback has been positive, our developers love it!&lt;/p&gt;
+
+&lt;p&gt;We’re still building on our dashboard, powered by our handy little gem. As we build we’ll be making improvements on the gem, starting with tests and TypeScript support. Pull requests are welcome!&lt;/p&gt;
+
+&lt;p&gt;Originally posted on the &lt;a href=&quot;https://blog.usehover.com/preact-rails-gem--preact-integration-for-ruby-on-rails-/&quot;&gt;Hover blog&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 24 Sep 2019 03:00:00 +0300</pubDate>
+        <link>https://ishuah.com//2019/09/24/preact-rails-gem-preact-integration-for-ruby-on-rails/</link>
+        <guid isPermaLink="true">https://ishuah.com//2019/09/24/preact-rails-gem-preact-integration-for-ruby-on-rails/</guid>
+        
+        <category>developer-tools</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Design Patterns&amp;#58; A Retrospective</title>
+        <description>&lt;p&gt;Design patterns are like the instruction manuals that come with your dining table, you’ll never need them unless you want to enjoy your meals on a flat surface. Based on that statement, you can tell that I’m not entirely impartial when it comes to software design patterns. I’ve been on both ends of the spectrum, from indifference to the type of fondness you only have for comfort food.&lt;/p&gt;
+
+&lt;p&gt;If you’re like me you probably implemented design patterns without really understanding them. I only fully appreciated the concept after (an admitted struggle) reading the GoF Design Patterns book. Legend has it that, after writing copious amounts of code, the “Gang of Four” realized that they were solving recurring problems. For the good of the &lt;a href=&quot;https://blog.codinghorror.com/how-to-be-lazy-dumb-and-successful/&quot;&gt;lazy&lt;/a&gt;, they published &lt;a href=&quot;https://www.amazon.com/Design-patterns-elements-reusable-object-oriented/dp/0201633612&quot;&gt;&lt;em&gt;Design Patterns: Elements of Reusable Object-Oriented Software&lt;/em&gt;&lt;/a&gt; (&lt;em&gt;aka&lt;/em&gt; GoF Design Patterns), a book that catalogs 23 solutions to common programming problems.&lt;/p&gt;
+
+&lt;p&gt;The Design Patterns concept was adapted from Christopher Alexanders’ &lt;a href=&quot;https://www.amazon.com/Pattern-Language-Buildings-Construction-Environmental/dp/0195019199&quot;&gt;&lt;em&gt;A Pattern Language&lt;/em&gt;&lt;/a&gt;. In the book, Alexander et al. describe reusable solutions to architectural problems. Architectural as in buildings and doors and all that stuff. The Gang of Four applied the same concept to software engineering, specifically object-oriented software design. They used practical solutions implemented in C++ and Smalltalk, both popular languages at the time (the early 1990s). Initially the term “Design Patterns” almost exclusively referred to the patterns described in this book. Over the years more patterns have been developed but the core definition remains the same: A design pattern is a repeatable solution to a commonly occurring problem.&lt;/p&gt;
+
+&lt;p&gt;Design patterns are not simple, they were never meant to be because the problems they solve are not simple. As with all non-simple things, there’s a danger of misinterpretation which leads to misuse, abuse, and bad code reviews. I went through a ‘design pattern frenzy’ where I tried to implement patterns in everything until everything was an untidy ball of regrets. There are no shortcuts with design patterns. They come with complexity and consequences which have to be taken into consideration.&lt;/p&gt;
+
+&lt;p&gt;Some design patterns encourage bad practice. I’m looking at you, Singleton. Quoting Kent Beck in his book &lt;a href=&quot;https://www.amazon.com/Test-Driven-Development-Kent-Beck/dp/0321146530&quot;&gt;&lt;em&gt;Test-Driven Development By Example&lt;/em&gt;&lt;/a&gt;, he says, “&lt;em&gt;How do you provide global variables in languages without global variables? Don’t. Your programs will thank you for taking the time to think about design instead.&lt;/em&gt;” Singletons are considered harmful because they create globals and &lt;a href=&quot;http://wiki.c2.com/?GlobalVariablesAreBad&quot;&gt;globals are bad&lt;/a&gt;. There are cases where Singletons are useful, for instance, application logs. It’s much easier to have one instance of your log class which you can use throughout your application without worrying about initialization. It’s considered acceptable because logging shouldn’t affect the execution of your application.&lt;/p&gt;
+
+&lt;p&gt;There are harsher criticisms that question the existence of design patterns. In 1996, Peter Norvig made a presentation titled &lt;a href=&quot;http://norvig.com/design-patterns/&quot;&gt;&lt;em&gt;Design Patterns in Dynamic Languages&lt;/em&gt;&lt;/a&gt; where he demonstrated that most design patterns become simpler or even unnecessary in Lisp. Paul Graham, in his blog post &lt;a href=&quot;http://www.paulgraham.com/icad.html&quot;&gt;&lt;em&gt;Revenge of the Nerds&lt;/em&gt;&lt;/a&gt;, says: &lt;em&gt;“I wonder if these patterns are not sometimes evidence of case ( c ), the human compiler, at work. When I see patterns in my programs, I consider it a sign of trouble.”&lt;/em&gt; These two arguments lead to a broader question, &lt;a href=&quot;http://wiki.c2.com/?AreDesignPatternsMissingLanguageFeatures&quot;&gt;are design patterns missing language features?&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Despite the criticism, Design Patterns have made an impact. User interface designers have a cataloged list of &lt;a href=&quot;http://ui-patterns.com/patterns&quot;&gt;100+ design patterns&lt;/a&gt;, documented very similarly to the GoF design patterns. React developers have a free ebook that addresses &lt;a href=&quot;https://github.com/krasimir/react-in-patterns&quot;&gt;react in patterns&lt;/a&gt;. There are countless collections of design pattern implementations in multiple languages (&lt;a href=&quot;https://github.com/faif/python-patterns&quot;&gt;Python&lt;/a&gt;, &lt;a href=&quot;https://github.com/tmrts/go-patterns&quot;&gt;Golang&lt;/a&gt;, &lt;a href=&quot;https://github.com/iluwatar/java-design-patterns&quot;&gt;Java&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Back when I started learning Golang, I wanted to see how tests were written in production. That’s how I began contributing to &lt;a href=&quot;https://github.com/ncw/rclone&quot;&gt;ncw/rclone&lt;/a&gt;. The &lt;a href=&quot;https://github.com/ncw/rclone/pull/1648/files#diff-76e951d9b2563014f8f5449cda9313e4R908&quot;&gt;first contribution&lt;/a&gt; I ever made loosely revolved around the Abstract Factory Pattern.&lt;/p&gt;
+
+&lt;p&gt;Rclone is a command line utility that syncs files and directories to and from different cloud storage providers. In this PR I implemented a way of emptying the trash on Google Drive. For some context on the code above, &lt;em&gt;Fs&lt;/em&gt; is an interface that represents a file system and must be implemented by each cloud storage object. To implement an interface in Go, a struct has to implement all the interface methods. Cloud storage providers don’t have similar functionality so @&lt;a href=&quot;https://github.com/ncw&quot;&gt;ncw&lt;/a&gt; wrote a &lt;a href=&quot;https://github.com/ncw/rclone/commit/1fa258c2b45cdd81f245104608285fc7df81e5b5#diff-f6c6bb8a6ec40b9f63d107bc7070f708&quot;&gt;&lt;em&gt;Features&lt;/em&gt;&lt;/a&gt;&lt;em&gt;()&lt;/em&gt; method that returns all the optional features in a file system. CleanUp is one of those features. I didn’t have to write the empty trash method in the &lt;em&gt;Google Drive struct&lt;/em&gt;, it’s already available in the official &lt;a href=&quot;https://godoc.org/google.golang.org/api/drive/v3#FilesService.EmptyTrash&quot;&gt;drive package&lt;/a&gt;. All I had to do was implement the CleanUp feature in the &lt;em&gt;Google Drive struct&lt;/em&gt;, calling the empty trash method from within. The PR had 28 lines added, most of which was documentation. It took me less than 2 hours to put the whole thing together.&lt;/p&gt;
+
+&lt;p&gt;That’s the power behind Design Patterns. They have a steep learning curve but the benefits are worth it, especially with large engineering teams working on expansive codebases. Better coordinated engineers means less technical debt, more productivity and better cycles.&lt;/p&gt;
+
+&lt;p&gt;Design Patterns are a subjective choice in an objective discipline. If all else fails, &lt;a href=&quot;https://en.wikipedia.org/wiki/KISS_principle&quot;&gt;KISS&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 25 Mar 2019 11:00:24 +0300</pubDate>
+        <link>https://ishuah.com//2019/03/25/design-patterns-a-retrospective/</link>
+        <guid isPermaLink="true">https://ishuah.com//2019/03/25/design-patterns-a-retrospective/</guid>
+        
+        <category>software-development</category>
+        
+        <category>culture</category>
+        
+        <category>design-patterns</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

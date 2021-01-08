@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Preact-Rails Gem&#58; Preact integration for Ruby on Rails.
-description: We\'re happy to announce a new open source gem, preact-rails!
+description: We're happy to announce a new open source gem, preact-rails!
 date: 2019-09-24 00:00:00
 image: /images/22.jpg
 tags: [developer-tools]
@@ -29,7 +29,7 @@ In your view, you call preact\_component like so:
 
 Where _“SimpleButton”_ is the Preact component name, _label_ is a prop and _“Start”_ is a prop value. And this is what gets rendered when you load the view on a browser:
 {% highlight html %}
-  <div data-preact-class="SimpleButton" data-preact-props="{'label':'Start'}">
+  <div data-preact-class=“SimpleButton” data-preact-props=“{'label':'Start'}”>
   </div>
 {% endhighlight %}
 
@@ -37,7 +37,7 @@ That’s the first part. The second part of the project is an npm package, [prea
 
 Let’s start with the SimpleButtonComponent, defined as such:
 {% highlight js %}
-  import { h, Component } from "preact"
+  import { h, Component } from “preact”
   
   class SimpleButton extends Component {
     render (props, state) {
