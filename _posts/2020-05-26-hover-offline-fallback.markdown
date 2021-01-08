@@ -38,7 +38,7 @@ That's because we haven't set up the callback function that will read and respon
 {% highlight python %}
     # Python 3.8.2
     func ussd_callback() {
-        return "END Welcome to Hover"
+        return “END Welcome to Hover”
     }
 {% endhighlight %}
 
@@ -54,13 +54,13 @@ The complete callback function for the architecture described above (image 1.2) 
         params = urllib.parse.parse_qs(event['body'], keep_blank_values=True)
     
         if 'text' not in params:
-            return {"statusCode": 400, "body": "END bad request"}
+            return {“statusCode”: 400, “body”: “END bad request”}
     
         text = params['text'][0]
         
         # Respond with the text `send input`, expect data
         if text == '':
-            return {"statusCode": 200, "body":"CON send data"}
+            return {“statusCode”: 200, “body”:“CON send data”}
         
         # Parse url query string
         data = urllib.parse.parse_qs(text)
@@ -68,12 +68,12 @@ The complete callback function for the architecture described above (image 1.2) 
         # If the data sent is malformed, respond with `bad request`
         # and end the session
         if not bool(data):
-            return {"statusCode": 400, "body": "END bad request"}
+            return {“statusCode”: 400, “body”: “END bad request”}
     
         # Process, persist, analyze data
         
         # End session, `success`
-        return {"statusCode": 200, "body":"END success"}
+        return {“statusCode”: 200, “body”:“END success”}
 {% endhighlight %}  
 
 <!--kg-card-end: markdown-->
@@ -104,31 +104,31 @@ The final step is automating this USSD action from an Android app. This part req
 <!--kg-card-begin: markdown-->
 {% highlight python %}
 sendData.setOnClickListener {
-            var payload = ""
+            var payload = “”
 
-            if (report_title.text.isNotEmpty()) payload = "message=${report_title.text}"
+            if (report_title.text.isNotEmpty()) payload = “message=${report_title.text}”
 
             payload = if (hungry.isChecked) {
-                payload.plus(";hungry=1")
+                payload.plus(“;hungry=1”)
             } else {
-                payload.plus(";hungry=0")
+                payload.plus(“;hungry=0”)
             }
             
-            if (intensity.text.isNotEmpty()) payload = payload.plus(";intensity=${intensity.text}")
+            if (intensity.text.isNotEmpty()) payload = payload.plus(“;intensity=${intensity.text}”)
             
             // Input from a RatingBar
-            payload = payload.plus(";mood=${mood.rating}")
+            payload = payload.plus(“;mood=${mood.rating}”)
 
 
             if (payload.isNotEmpty()) {
                 val i = HoverParameters.Builder(this)
                     .request(ACTION_ID)
-                    .extra("payload", payload)
+                    .extra(“payload”, payload)
                     .buildIntent()
 
                 startActivityForResult(i, 0)
             } else {
-                Toast.makeText(this, "Nothing to send!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, “Nothing to send!”, Toast.LENGTH_LONG).show()
             }
         }
 {% endhighlight %}
