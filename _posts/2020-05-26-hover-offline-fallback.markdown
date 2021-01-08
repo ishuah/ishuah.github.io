@@ -137,7 +137,7 @@ sendData.setOnClickListener {
 The example above is in Kotlin and it demonstrated how you can run the action we created before with a valid payload. In this specific case, a valid payload means a URL encoded key/value pairs separated by a semicolon. Example:
 
 <!--kg-card-begin: markdown-->
-{% highlight %}
+{% highlight url %}
 activity=idle;course=818;altitude=1780.91;path=Ngong+road
 {% endhighlight %}
 
