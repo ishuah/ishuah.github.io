@@ -2,7 +2,7 @@
 layout: post
 title: Three Pis, One Network
 description: Setting up a subnet with three Pis and a switch
-date: 2021-01-12 17:29:29
+date: 2021-01-12 08:29:29
 image: '/images/24.jpg'
 tags: [raspberry-pi, networking, ubuntu]
 ---
