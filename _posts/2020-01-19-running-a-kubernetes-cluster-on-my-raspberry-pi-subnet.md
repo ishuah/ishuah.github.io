@@ -5,4 +5,5 @@ description: Installing, configuring and running a Kubernetes cluster on my Rasp
 date: 2021-01-19 13:30:29
 image: '/images/24.jpg'
 tags: [raspberry-pi, kubernetes, micrk8s, ubuntu, home-lab]
+published: false
 ---
