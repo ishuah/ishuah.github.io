@@ -17,6 +17,10 @@
 <lastmod>2021-01-12T09:29:29+03:00</lastmod>
 </url>
 <url>
+<loc>https://ishuah.com/2021/01/19/running-a-kubernetes-cluster-on-my-raspberry-pi-subnet/</loc>
+<lastmod>2021-01-19T11:30:29+03:00</lastmod>
+</url>
+<url>
 <loc>https://ishuah.com/about/</loc>
 </url>
 <url>
@@ -54,5 +58,11 @@
 </url>
 <url>
 <loc>https://ishuah.com/tag/home-lab/</loc>
+</url>
+<url>
+<loc>https://ishuah.com/tag/kubernetes/</loc>
+</url>
+<url>
+<loc>https://ishuah.com/tag/microk8s/</loc>
 </url>
 </urlset>

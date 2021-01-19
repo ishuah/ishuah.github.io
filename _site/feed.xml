@@ -5,9 +5,179 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 19 Jan 2021 10:02:30 +0300</pubDate>
-    <lastBuildDate>Tue, 19 Jan 2021 10:02:30 +0300</lastBuildDate>
+    <pubDate>Tue, 19 Jan 2021 15:02:26 +0300</pubDate>
+    <lastBuildDate>Tue, 19 Jan 2021 15:02:26 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>Running Kubernetes On My Raspberry Pi Subnet</title>
+        <description>&lt;p&gt;This is the second article in my home lab series. The first article in the series, &lt;a href=&quot;https://ishuah.com/2021/01/12/three-pis-one-network/&quot;&gt;Three Pis, One Network&lt;/a&gt;, describes in detail how to set up a private network with 3 (or more) Raspberry Pis.&lt;/p&gt;
+
+&lt;p&gt;I chose Kubernetes (a.k.a. k8s) because most of my home lab experiments are container based and require minimal resources. There are two Kubernetes distributions of note, &lt;a href=&quot;https://microk8s.io/&quot; target=&quot;blank_&quot;&gt;microk8s&lt;/a&gt; and &lt;a href=&quot;https://k3s.io/&quot; target=&quot;blank_&quot;&gt;k3s&lt;/a&gt;. K3s has been around for longer, with a bigger support community. Microk8s is a relatively new Canonical project with excellent documentation.&lt;/p&gt;
+
+&lt;h2 id=&quot;k8s-cluster-design&quot;&gt;K8s cluster design&lt;/h2&gt;
+&lt;figure&gt;&lt;img src=&quot;/images/k8s-cluster.png&quot; /&gt;&lt;figcaption&gt;The Kubernetes Cluster Design&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;p&gt;The diagram above describes role delegation for all the cluster nodes. The Router RPi will serve as the k8s master and the remaining two RPi hosts will serve as k8s leaf nodes. Microk8s is my Kubernetes distro of choice.&lt;/p&gt;
+
+&lt;h2 id=&quot;static-ip-addresses-for-pi-hosts&quot;&gt;static ip addresses for pi hosts&lt;/h2&gt;
+&lt;p&gt;Kubernetes requires static IP addresses for each node in the cluster.&lt;/p&gt;
+
+&lt;p&gt;I edited &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/dnsmasq.conf&lt;/code&gt; and added the following lines.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-apache&quot; data-lang=&quot;apache&quot;&gt;&lt;span class=&quot;c&quot;&gt;# /etc/dnsmasq.conf&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# assign static IP addresses to each Pi&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# these are dummy MAC addresses&lt;/span&gt;
+dhcp-host=dc:a6:32:00:00:01,10.0.0.50
+dhcp-host=dc:a6:32:00:00:02,10.0.0.51&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The lines above bind each RPi’s MAC address to a static IP address.&lt;/p&gt;
+
+&lt;h2 id=&quot;enabling-cgroups&quot;&gt;enabling cgroups&lt;/h2&gt;
+&lt;p&gt;Before installing MicroK8s I had to enable cgroups. I looked this up because my Linux kernel understanding is a bit rusty. Cgroups (Control Groups) are a kernel feature which allow processes to be organized into ordered groups whose resource usage can be monitored and managed. Kubernetes uses this feature to manage container resources in a pod.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://ubuntu.com/tutorials/how-to-kubernetes-cluster-on-raspberry-pi?&amp;amp;_ga=2.1581681.1904028082.1610988454-689418591.1607279417#4-installing-microk8s&quot;&gt;As per the MicroK8s tutorial&lt;/a&gt;, I edited the file &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/boot/firmware/cmdline.txt&lt;/code&gt; and added the following options:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;cgroup_enable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;memory &lt;span class=&quot;nv&quot;&gt;cgroup_memory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;After the edit, a reboot is required. I did this on all the Pis in my network.&lt;/p&gt;
+
+&lt;h2 id=&quot;installing-microk8s&quot;&gt;installing microk8s&lt;/h2&gt;
+&lt;p&gt;Installing Microk8s is very straight forward. There’s a snap package available, all I needed to do was install it on each RPi in my network.&lt;/p&gt;
+
+&lt;p&gt;I executed the following commands on each RPi:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#install microk8s&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;snap &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;microk8s &lt;span class=&quot;nt&quot;&gt;--classic&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--channel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1.20/stable
+&lt;span class=&quot;c&quot;&gt;# add the current user to the group 'microk8s'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;usermod &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-G&lt;/span&gt; microk8s &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# change ownership of the file ~/.kube to the current user&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sudo chown&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt; ~/.kube
+&lt;span class=&quot;c&quot;&gt;# add an alias for the command 'microk8s kubectl'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;tee&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; ~/.bash_aliases &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;EOF
+&lt;span class=&quot;nb&quot;&gt;alias &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;kubectl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'microk8s kubectl'&lt;/span&gt;
+EOF
+
+&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ~/.bash_aliases&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I read through &lt;a href=&quot;https://microk8s.io/docs/commands&quot;&gt;this command reference&lt;/a&gt; to familiarize myself with the microk8s command line interface.&lt;/p&gt;
+
+&lt;p&gt;At the time of writing, Microk8s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1.20&lt;/code&gt; was the latest stable release available. Prior to its release I tried out &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1.19&lt;/code&gt; and encountered &lt;a href=&quot;https://github.com/ubuntu/microk8s/issues/1401&quot; target=&quot;blank_&quot;&gt;a major issue while adding multiple nodes to the cluster&lt;/a&gt;. I have not encountered this issue with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1.20&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;adding-nodes-to-the-cluster&quot;&gt;adding nodes to the cluster&lt;/h2&gt;
+&lt;p&gt;Once microk8s is installed on all the Pis, I ran the following command on the Router RPi (designated master node):&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;microk8s.add-node&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The command above generates the following output:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;From the node you wish to &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;to this cluster, run the following:
+microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;192.168.1.10:25000/182474c990a59770b1abe3ef9a5a40fd
+
+If the node you are adding is not reachable through the default interface you can use one of the following:
+ microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;10.0.0.1:25000/182474c990a59770b1abe3ef9a5a40fd
+ microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;192.168.1.10:25000/182474c990a59770b1abe3ef9a5a40fd
+ microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;172.17.0.1:25000/182474c990a59770b1abe3ef9a5a40fd
+ microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;10.1.24.0:25000/182474c990a59770b1abe3ef9a5a40fd&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh'd&lt;/code&gt; into one of the RPi nodes and ran the command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# I used the master IP 10.0.0.1 because that's the interface IP address that's reachable by the node&lt;/span&gt;
+microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;10.0.0.1:25000/182474c990a59770b1abe3ef9a5a40fd&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I generated a new connection string and added the other RPi node to the cluster.&lt;/p&gt;
+
+&lt;p&gt;Back on the master node I ran the following command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;kubectl get node&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Which returns:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;NAME       STATUS   ROLES    AGE   VERSION
+10.0.0.1   Ready    &amp;lt;none&amp;gt;   1d   v1.20.1-34+97978f80232b01
+10.0.0.50  Ready    &amp;lt;none&amp;gt;   1d   v1.20.1-34+97978f80232b01
+10.0.0.51  Ready    &amp;lt;none&amp;gt;   1d   v1.20.1-34+97978f80232b01&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The cluster is on like the break of dawn.&lt;/p&gt;
+
+&lt;h1 id=&quot;enable-the-kubernetes-dashboard&quot;&gt;enable the kubernetes dashboard&lt;/h1&gt;
+&lt;p&gt;Microk8s comes with a number of addons that you can use to enrich your Kubernetes cluster. The first addon I enabled was the Kubernetes dashboard. How else could I monitor my little pods?&lt;/p&gt;
+
+&lt;p&gt;I executed the following commands on my master node:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# enable the dashboard and a few other necessary addons&lt;/span&gt;
+microk8s &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;dns dashboard
+&lt;span class=&quot;c&quot;&gt;# label the dashboard service&lt;/span&gt;
+kubectl label service/kubernetes-dashboard kubernetes.io/cluster-service&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--namespace&lt;/span&gt; kube-system
+&lt;span class=&quot;c&quot;&gt;# Proxy to make the dashboard accessible from my home network&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;microk8s.kubectl proxy &lt;span class=&quot;nt&quot;&gt;--accept-hosts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--address&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.0.0.0 &amp;amp;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Executing the command &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kubectl cluster-info&lt;/code&gt; now returns:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Kubernetes control plane is running at https://127.0.0.1:16443
+CoreDNS is running at https://127.0.0.1:16443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Metrics-server is running at https://127.0.0.1:16443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy
+kubernetes-dashboard is running at https://127.0.0.1:16443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The Kubernetes dashboard has a secure token based login system. I’m not too concerned about security (the Kubernetes cluster is only accessible from my home network) so I disabled the login mechanism on the dashboard.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;microk8s.kubectl &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; kube-system edit deploy kubernetes-dashboard &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; yaml
+&lt;span class=&quot;c&quot;&gt;# Add '- --enable-skip-login' after '- --namespace=kube-system'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The edit should end up like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yaml&quot; data-lang=&quot;yaml&quot;&gt;&lt;span class=&quot;na&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;containers&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;--auto-generate-certificates&lt;/span&gt;
+        &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;--namespace=kube-system&lt;/span&gt;
+        &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;--enable-skip-login&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# the new line&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The dashboard was now accessible on the master node’s home network IP address:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-url&quot; data-lang=&quot;url&quot;&gt;http://192.168.1.10:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#/overview?namespace=default&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Note: the login page still shows up but there’s a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;skip&lt;/code&gt; button which allow you to bypass the login procedure.&lt;/p&gt;
+
+&lt;h2 id=&quot;bonus-enable-prometheus&quot;&gt;bonus: enable prometheus&lt;/h2&gt;
+&lt;p&gt;Microk8s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1.20&lt;/code&gt; ships with Prometheus.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;microk8s &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;prometheus
+&lt;span class=&quot;c&quot;&gt;# port forwarding to enable external access to Prometheus dashboard&lt;/span&gt;
+microk8s kubectl port-forward &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; monitoring service/prometheus-k8s &lt;span class=&quot;nt&quot;&gt;--address&lt;/span&gt; 0.0.0.0 9090:9090
+&lt;span class=&quot;c&quot;&gt;# port forwarding to enable external access to Grafana dashboard&lt;/span&gt;
+microk8s kubectl port-forward &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; monitoring service/grafana &lt;span class=&quot;nt&quot;&gt;--address&lt;/span&gt; 0.0.0.0 3000:3000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I could now access the Prometheus dashboard on..&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-url&quot; data-lang=&quot;url&quot;&gt;http://192.168.1.10:9090/&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;..and the Grafana dashboard on&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-url&quot; data-lang=&quot;url&quot;&gt;http://192.168.1.10:3000/ &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The Grafana dashboard has a default username:password  =&amp;gt; admin:admin.&lt;/p&gt;
+
+&lt;h2 id=&quot;pains&quot;&gt;pains&lt;/h2&gt;
+&lt;p&gt;Besides the node connection issue I encountered with microk8s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1.19&lt;/code&gt;, I did not encounter any other blockers while creating my k8s cluster.&lt;/p&gt;
+
+&lt;p&gt;The next article in this series will be about one of my favorite experiments!&lt;/p&gt;
+</description>
+        <pubDate>Tue, 19 Jan 2021 11:30:29 +0300</pubDate>
+        <link>https://ishuah.com/2021/01/19/running-a-kubernetes-cluster-on-my-raspberry-pi-subnet/</link>
+        <guid isPermaLink="true">https://ishuah.com/2021/01/19/running-a-kubernetes-cluster-on-my-raspberry-pi-subnet/</guid>
+        
+        <category>raspberry-pi</category>
+        
+        <category>kubernetes</category>
+        
+        <category>microk8s</category>
+        
+        <category>ubuntu</category>
+        
+        <category>home-lab</category>
+        
+        
+      </item>
     
       <item>
         <title>Three Pis, One Network</title>
@@ -180,7 +350,7 @@ expand-hosts&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The hardware currently sits in a disorganized state on my work desk. I ordered a Raspberry Pi &lt;a href=&quot;https://www.amazon.com/GeeekPi-Raspberry-Cluster-Stackable-4-Layers/dp/B083FDHPBH/ref=sr_1_3?dchild=1&amp;amp;keywords=raspberry%2Bpi%2B4%2Btower&amp;amp;qid=1610457918&amp;amp;sr=8-3&amp;amp;th=1&quot;&gt;cluster case&lt;/a&gt; and &lt;a href=&quot;https://www.amazon.com/Cable-Matters-160021-Snagless-Ethernet/dp/B00E5I7T9I/ref=sr_1_2_sspa?dchild=1&amp;amp;keywords=raspberry%2Bpi%2B4%2Bcat6%2Bcable&amp;amp;qid=1610458153&amp;amp;sr=8-2-spons&amp;amp;spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExMUVHVDdPU0FWVTdZJmVuY3J5cHRlZElkPUEwNTMwMDk5MU5aODRBNzhQVDAzVSZlbmNyeXB0ZWRBZElkPUEwNDgxOTc2RU9BNjhDTldGVDE4JndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ&amp;amp;th=1&quot;&gt;flexible Cat6 Ethernet cables&lt;/a&gt; so that I can have a better organized home lab.&lt;/p&gt;
 
-&lt;p&gt;The next article in this series will be about installing Kubernetes on my private Raspberry Pi network.&lt;/p&gt;
+&lt;p&gt;The next article in this series is &lt;a href=&quot;https://ishuah.com/2021/01/19/running-a-kubernetes-cluster-on-my-raspberry-pi-subnet/&quot;&gt;Running a Kubernetes Cluster On My Raspberry Pi Subnet&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Jan 2021 09:29:29 +0300</pubDate>
         <link>https://ishuah.com/2021/01/12/three-pis-one-network/</link>

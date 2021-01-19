@@ -192,4 +192,4 @@ I had a hard time figuring out how to assign a static IP address to `eth0` on th
 
 The hardware currently sits in a disorganized state on my work desk. I ordered a Raspberry Pi [cluster case](https://www.amazon.com/GeeekPi-Raspberry-Cluster-Stackable-4-Layers/dp/B083FDHPBH/ref=sr_1_3?dchild=1&keywords=raspberry%2Bpi%2B4%2Btower&qid=1610457918&sr=8-3&th=1) and [flexible Cat6 Ethernet cables](https://www.amazon.com/Cable-Matters-160021-Snagless-Ethernet/dp/B00E5I7T9I/ref=sr_1_2_sspa?dchild=1&keywords=raspberry%2Bpi%2B4%2Bcat6%2Bcable&qid=1610458153&sr=8-2-spons&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExMUVHVDdPU0FWVTdZJmVuY3J5cHRlZElkPUEwNTMwMDk5MU5aODRBNzhQVDAzVSZlbmNyeXB0ZWRBZElkPUEwNDgxOTc2RU9BNjhDTldGVDE4JndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ&th=1) so that I can have a better organized home lab.
 
-The next article in this series will be about installing Kubernetes on my private Raspberry Pi network.
+The next article in this series is [Running a Kubernetes Cluster On My Raspberry Pi Subnet](https://ishuah.com/2021/01/19/running-a-kubernetes-cluster-on-my-raspberry-pi-subnet/)
