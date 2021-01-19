@@ -5,8 +5,8 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com//</link>
     <atom:link href="https://ishuah.com//feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 12 Jan 2021 16:45:08 +0300</pubDate>
-    <lastBuildDate>Tue, 12 Jan 2021 16:45:08 +0300</lastBuildDate>
+    <pubDate>Tue, 19 Jan 2021 09:49:17 +0300</pubDate>
+    <lastBuildDate>Tue, 19 Jan 2021 09:49:17 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -182,7 +182,7 @@ expand-hosts&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The next article in this series will be about installing Kubernetes on my private Raspberry Pi network.&lt;/p&gt;
 </description>
-        <pubDate>Tue, 12 Jan 2021 11:29:29 +0300</pubDate>
+        <pubDate>Tue, 12 Jan 2021 09:29:29 +0300</pubDate>
         <link>https://ishuah.com//2021/01/12/three-pis-one-network/</link>
         <guid isPermaLink="true">https://ishuah.com//2021/01/12/three-pis-one-network/</guid>
         
@@ -191,6 +191,8 @@ expand-hosts&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
         <category>networking</category>
         
         <category>ubuntu</category>
+        
+        <category>home-lab</category>
         
         
       </item>

@@ -4,7 +4,7 @@ title: Three Pis, One Network
 description: Setting up a subnet with three Pis and a switch
 date: 2021-01-12 06:29:29
 image: '/images/24.jpg'
-tags: [raspberry-pi, networking, ubuntu]
+tags: [raspberry-pi, networking, ubuntu, home-lab]
 ---
 
 Most of my projects start from a point of curiosity. This one is no different. I've tinkered with Raspberry Pis over the years, but I've never tried anything on this scale. Three Raspberry Pis connected via a network switch to create a tiny home lab. The perfect environment to run destructive experiments.
