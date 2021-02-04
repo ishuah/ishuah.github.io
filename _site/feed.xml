@@ -5,9 +5,92 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 19 Jan 2021 16:18:20 +0300</pubDate>
-    <lastBuildDate>Tue, 19 Jan 2021 16:18:20 +0300</lastBuildDate>
+    <pubDate>Thu, 04 Feb 2021 18:46:17 +0300</pubDate>
+    <lastBuildDate>Thu, 04 Feb 2021 18:46:17 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>Understanding The Linux TTY Subsystem</title>
+        <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@_imkiran?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Sai Kiran Anagani&lt;/a&gt; on &lt;a href=&quot;https://unsplash.com/s/photos/linux?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;TTY stands for TeleTYpe. If you Google the word teletype, a picture of a device that looks like a typewriter shows up. How did a typewriter become an essential part of the Linux operating system?&lt;/p&gt;
+
+&lt;h2 id=&quot;how-it-all-started&quot;&gt;how it all started&lt;/h2&gt;
+&lt;p&gt;The teletype came about through a series of innovations around message transmission on electric channels. It has a rich history going back to the 1840s. Several innovations and collaborations led to the development of the &lt;a href=&quot;https://en.wikipedia.org/wiki/Telex&quot;&gt;Telex exchange network&lt;/a&gt; in the late 1920s. Telex eventually grew to over 100,000 connections worldwide and was vital in global communication post World War II.&lt;/p&gt;
+
+&lt;p&gt;Meanwhile, computer technology was progressing. Earlier computers could only run one program at a time but in the 1960s, multiprogramming computers appeared on the market. These computers could interact with users in realtime via a command-line interface. There was suddenly a need for input and output devices. Instead of building new I/O machines, pragmatic engineers reused existing teletypes. Teletypes were already on the market, and they fit the use case perfectly as physical terminals for mainframe computers.&lt;/p&gt;
+
+&lt;p&gt;Users could now type commands on the teletype and receive the computer output via punched tape. Later versions of the teletype were completely electronic and utilized electronic screens. Users could move the cursor and clear the screen, features unavailable on printed paper teletypes.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-teletype-as-a-physical-terminal&quot;&gt;the teletype as a physical terminal&lt;/h2&gt;
+&lt;figure&gt;&lt;img src=&quot;/images/teletype-terminal.jpg&quot; /&gt;&lt;figcaption&gt;The Teletype terminal&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;p&gt;A physical line connects the teletype to the Universal Asynchronous Receiver and Transmitter on the computer. This physical line consists of two cables, an input and output cable. When a user types on the terminal, the input cable sends the keystrokes to the UART driver, which sends the keystrokes to the line discipline layer. The line discipline does three things:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;It echoes the keystrokes to the output cable (back to the terminal/teletype), so the user can see what they’ve typed&lt;/li&gt;
+  &lt;li&gt;It manages the character buffer.&lt;/li&gt;
+  &lt;li&gt;It handles special editing commands (erase, backspace, clear line).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;When the user presses the enter key, line discipline sends the buffered characters to the TTY driver, which passes the characters to the foreground process attached to the TTY.
+The UART driver, line discipline, and the TTY driver make up the TTY device.&lt;/p&gt;
+
+&lt;h2 id=&quot;terminal-emulators&quot;&gt;terminal emulators&lt;/h2&gt;
+&lt;p&gt;As technology improved, computers shrunk in size, and teletypes became cumbersome. Software emulated teletypes replaced physical teletypes. These terminal emulators work in the same way as their physical counterparts, the only difference being that there are no physical lines and UART connections. Examples of terminal emulators include xterm and the gnome-terminal.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/terminal-emulator.jpg&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;pseudo-terminals-pty&quot;&gt;pseudo-terminals (PTY)&lt;/h2&gt;
+&lt;p&gt;The whole TTY subsystem residing in the kernel made terminal interactions inflexible. The solution was to move terminal emulation to the userland, leaving line discipline and the TTY driver intact in the kernel. The PTY consists of two parts:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The PTY master (PTMX) - attached to the terminal emulator&lt;/li&gt;
+  &lt;li&gt;The PTY slave  (PTS) - provides processes with an interface to the PTY master&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/pseudo-terminal.jpg&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Note: the line discipline instance is not evoked when the TTY driver is sending user program output to PTY master.&lt;/p&gt;
+
+&lt;h2 id=&quot;shell&quot;&gt;shell&lt;/h2&gt;
+&lt;p&gt;So far, we’ve covered terminal emulators and pseudo-terminals. The shell is a program that resides in userland and manages user-computer interactions. Examples of shell programs include bash, zsh, and fish.&lt;/p&gt;
+
+&lt;h2 id=&quot;putting-it-all-together&quot;&gt;putting it all together&lt;/h2&gt;
+&lt;p&gt;What happens when you open a terminal emulator on Linux? I’ll give an example with my environment: I use gnome-terminal as my terminal emulator and zsh as my shell.&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Gnome-terminal renders its UI on the video display.&lt;/li&gt;
+  &lt;li&gt;It requests a PTY from the OS.&lt;/li&gt;
+  &lt;li&gt;It launches a zsh subprocess.&lt;/li&gt;
+  &lt;li&gt;It sets the stdin, stdout, and stderr of zsh to PTY slave.&lt;/li&gt;
+  &lt;li&gt;It listens for keystroke events and sends the characters to PTY master.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/htop.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Systemd is Linux’s system and service manager. As shown above, systemd spawns a gnome-terminal subprocess, which in turn starts a zsh subprocess. The output above is from htop, which I ran from my terminal emulator. So, what happens when you run a command on a terminal emulator?&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;PTY master receives characters from gnome-terminal and passes them to the line discipline layer.&lt;/li&gt;
+  &lt;li&gt;Line discipline layer buffers the characters as you type them, writing back to PTY master so that you can see what you’re keying in.&lt;/li&gt;
+  &lt;li&gt;When you press enter, the line discipline layer sends the characters to the TTY driver, which then passes the characters to the PTY slave.&lt;/li&gt;
+  &lt;li&gt;zsh reads the characters “htop” and forks the process to run the htop program. The forked process has the same stdin stdout and stderr as zsh.&lt;/li&gt;
+  &lt;li&gt;htop prints to stdout (PTY slave).&lt;/li&gt;
+  &lt;li&gt;PTY slave passes the output to PTY master, which passes it on to gnome-terminal.&lt;/li&gt;
+  &lt;li&gt;Gnome-terminal reads the output and redraws the UI. The read is a loop, any change in the htop output reflects on the display in real-time.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;conclusion&lt;/h2&gt;
+&lt;p&gt;This was a brief introduction to the Linux TTY subsystem. Much of how it operates right now is influenced by technical decisions made over 60 years ago. Remarkable resilience.
+If you have any remarks or feedback, please reach out on &lt;a target=&quot;blank_&quot; href=&quot;https://twitter.com/ishuah_&quot;&gt;twitter!&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 04 Feb 2021 10:28:22 +0300</pubDate>
+        <link>https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/</link>
+        <guid isPermaLink="true">https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/</guid>
+        
+        <category>linux</category>
+        
+        <category>tty</category>
+        
+        
+      </item>
     
       <item>
         <title>Running Kubernetes On My Raspberry Pi Subnet</title>
