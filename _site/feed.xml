@@ -5,8 +5,8 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 04 Feb 2021 18:46:17 +0300</pubDate>
-    <lastBuildDate>Thu, 04 Feb 2021 18:46:17 +0300</lastBuildDate>
+    <pubDate>Thu, 04 Feb 2021 19:32:03 +0300</pubDate>
+    <lastBuildDate>Thu, 04 Feb 2021 19:32:03 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -80,6 +80,13 @@ The UART driver, line discipline, and the TTY driver make up the TTY device.&lt;
 &lt;h2 id=&quot;conclusion&quot;&gt;conclusion&lt;/h2&gt;
 &lt;p&gt;This was a brief introduction to the Linux TTY subsystem. Much of how it operates right now is influenced by technical decisions made over 60 years ago. Remarkable resilience.
 If you have any remarks or feedback, please reach out on &lt;a target=&quot;blank_&quot; href=&quot;https://twitter.com/ishuah_&quot;&gt;twitter!&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Technical references:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.linusakesson.net/programming/tty/&quot;&gt;The TTY demystified by Linus Åkesson&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dev.to/napicella/linux-terminals-tty-pty-and-shell-192e&quot;&gt;Linux terminals, tty, pty and shell by Nicola Apicella&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.howtogeek.com/428174/what-is-a-tty-on-linux-and-how-to-use-the-tty-command/&quot;&gt;What is a TTY on Linux? (and How to Use the tty Command) by Dave McKay&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         <pubDate>Thu, 04 Feb 2021 10:28:22 +0300</pubDate>
         <link>https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/</link>

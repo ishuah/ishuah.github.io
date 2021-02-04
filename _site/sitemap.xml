@@ -40,9 +40,6 @@
 <loc>https://ishuah.com/tag/developer-tools/</loc>
 </url>
 <url>
-<loc>https://ishuah.com/tag/golang/</loc>
-</url>
-<url>
 <loc>https://ishuah.com/tag/home-lab/</loc>
 </url>
 <url>
@@ -50,6 +47,9 @@
 </url>
 <url>
 <loc>https://ishuah.com/tag/kubernetes/</loc>
+</url>
+<url>
+<loc>https://ishuah.com/tag/linux/</loc>
 </url>
 <url>
 <loc>https://ishuah.com/tag/microk8s/</loc>
@@ -67,13 +67,10 @@
 <loc>https://ishuah.com/tag/software-development/</loc>
 </url>
 <url>
-<loc>https://ishuah.com/tag/terminal-emulator/</loc>
+<loc>https://ishuah.com/tag/tty/</loc>
 </url>
 <url>
 <loc>https://ishuah.com/tag/ubuntu/</loc>
-</url>
-<url>
-<loc>https://ishuah.com/tag/unit-testing/</loc>
 </url>
 <url>
 <loc>https://ishuah.com/tag/ussd/</loc>

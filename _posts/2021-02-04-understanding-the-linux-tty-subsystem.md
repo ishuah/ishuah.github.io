@@ -68,3 +68,8 @@ Systemd is Linux's system and service manager. As shown above, systemd spawns a 
 ## conclusion
 This was a brief introduction to the Linux TTY subsystem. Much of how it operates right now is influenced by technical decisions made over 60 years ago. Remarkable resilience.
 If you have any remarks or feedback, please reach out on <a target="blank_" href="https://twitter.com/ishuah_">twitter!</a>
+
+Technical references:
+* [The TTY demystified by Linus Åkesson](http://www.linusakesson.net/programming/tty/)
+* [Linux terminals, tty, pty and shell by Nicola Apicella](https://dev.to/napicella/linux-terminals-tty-pty-and-shell-192e)
+* [What is a TTY on Linux? (and How to Use the tty Command) by Dave McKay](https://www.howtogeek.com/428174/what-is-a-tty-on-linux-and-how-to-use-the-tty-command/)
