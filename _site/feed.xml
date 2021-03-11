@@ -5,8 +5,8 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 11 Mar 2021 15:33:15 +0300</pubDate>
-    <lastBuildDate>Thu, 11 Mar 2021 15:33:15 +0300</lastBuildDate>
+    <pubDate>Thu, 11 Mar 2021 16:00:06 +0300</pubDate>
+    <lastBuildDate>Thu, 11 Mar 2021 16:00:06 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -78,7 +78,7 @@ I’ll use &lt;a href=&quot;https://github.com/creack/pty&quot;&gt;pty&lt;/a&gt;
 &lt;p&gt;The display functionality is now running on its goroutine. It redraws the display every 100 milliseconds.&lt;/p&gt;
 
 &lt;h2 id=&quot;conclusion&quot;&gt;conclusion&lt;/h2&gt;
-&lt;p&gt;We now have a simple terminal emulator in &lt;del&gt;100&lt;/del&gt; 106 lines of Go! Of course, there’s still a long way to go before our tiny program can be called a functional terminal emulator. The next article in this series will cover special keys, signals, and the all-powerful cursor.&lt;/p&gt;
+&lt;p&gt;We now have a simple terminal emulator in &lt;del&gt;100&lt;/del&gt; 106 lines of Go! Of course, there’s still a long way to go before our tiny program can be called a functional terminal emulator. The next articles in this series will cover ansi escape codes, special keys, signals, and the all-powerful cursor.&lt;/p&gt;
 </description>
         <pubDate>Wed, 10 Mar 2021 09:13:57 +0300</pubDate>
         <link>https://ishuah.com/2021/03/10/build-a-terminal-emulator-in-100-lines-of-go/</link>

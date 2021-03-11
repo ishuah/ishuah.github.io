@@ -74,4 +74,4 @@ Line 72 - 79 defines an if block that checks whether the read rune is a newline 
 The display functionality is now running on its goroutine. It redraws the display every 100 milliseconds. 
 
 ## conclusion
-We now have a simple terminal emulator in ~~100~~ 106 lines of Go! Of course, there's still a long way to go before our tiny program can be called a functional terminal emulator. The next article in this series will cover special keys, signals, and the all-powerful cursor.
+We now have a simple terminal emulator in ~~100~~ 106 lines of Go! Of course, there's still a long way to go before our tiny program can be called a functional terminal emulator. The next articles in this series will cover ansi escape codes, special keys, signals, and the all-powerful cursor.
