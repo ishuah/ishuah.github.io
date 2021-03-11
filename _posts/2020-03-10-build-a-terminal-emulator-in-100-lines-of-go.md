@@ -16,37 +16,7 @@ The first thing we're going to build is the user interface. It's nothing fancy, 
 I'll use the [Fyne UI Toolkit](https://github.com/fyne-io/fyne). It's mature and reasonably [documented](https://developer.fyne.io/). 
 Here's our first iteration:
 
-{% highlight go %}
-package main
-
-import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
-)
-
-func main() {
-	a := app.New()
-	w := a.NewWindow("germ")
-
-	ui := widget.NewTextGrid()       // Create a new TextGrid
-	ui.SetText("I'm on a terminal!") // Set text to display
-
-	// Create a new container with a wrapped layout
-	// set the layout width to 420, height to 200
-	w.SetContent(
-		fyne.NewContainerWithLayout(
-			layout.NewGridWrapLayout(fyne.NewSize(420, 200)),
-			ui,
-		),
-	)
-
-	w.ShowAndRun()
-
-}
-{% endhighlight %}
-[Link to the gist](https://gist.github.com/ishuah/6b5b97131639c7ce410abb7b9caecec3)
+<script src="https://gist.github.com/ishuah/6b5b97131639c7ce410abb7b9caecec3.js"></script>
 
 The program above uses the Fyne UI API to render a text grid with the text "I'm on a terminal!".
 
@@ -60,65 +30,11 @@ The next step involves connecting to the TTY driver that lives in the kernel. We
 The pty slave receives all its input from the pty master. It also sends all its output to pty master. The pty master sends keystrokes from the keyboard to the pty slave. It also prints output from the pty slave to the display.
 I'll use [pty](https://github.com/creack/pty), a Go package for interfacing with Unix pseudoterminals.
 
-{% highlight go %}
-package main
-
-import (
-	"os"
-	"os/exec"
-	"time"
-
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
-	"github.com/creack/pty"
-)
-
-func main() {
-	a := app.New()
-	w := a.NewWindow("germ")
-
-	ui := widget.NewTextGrid()       // Create a new TextGrid
-
-	// Start bash process
-	c := exec.Command("/bin/bash") // @Line 22
-	p, err := pty.Start(c)
-
-	if err != nil {
-		fyne.LogError("Failed to open pty", err)
-		os.Exit(1)
-	}
-
-	defer c.Process.Kill() // @Line 30
-
-	p.Write([]byte("ls\r")) // @Line 32
-	time.Sleep(1 * time.Second)
-	b := make([]byte, 1024)
-	_, err = p.Read(b)
-	if err != nil {
-		fyne.LogError("Failed to read pty", err)
-	}
-
-	ui.SetText(string(b))
-	// Create a new container with a wrapped layout
-	// set the layout width to 420, height to 200
-	w.SetContent(
-		fyne.NewContainerWithLayout(
-			layout.NewGridWrapLayout(fyne.NewSize(420, 200)),
-			ui,
-		),
-	)
-
-	w.ShowAndRun()
-
-}
-{% endhighlight %}
-[Link to the Gist](https://gist.github.com/ishuah/e54a5445cf5ec0352915a508f1955bbd)
+<script src="https://gist.github.com/ishuah/e54a5445cf5ec0352915a508f1955bbd.js"></script>
 
 In the code above, lines 22-30 handle starting the bash process. We now have a pty master pointer p (line 23).
 
-Line 32, `p.Write([]byte("ls\r"))`, writes the characters `ls` and the return carriage byte to the pty master. As explained in the diagram above, the pty master sends these characters to the pty slave. Simply put, we've sent a command to the bash process.
+Line 32 writes the characters "ls" and the return carriage byte to the pty master. As explained in the diagram above, the pty master sends these characters to the pty slave. Simply put, we've sent a command to the bash process.
 
 The program above results in a text grid with an unordered list of items in your current directory.
 
@@ -127,87 +43,19 @@ The program above results in a text grid with an unordered list of items in your
 ## input from keyboard
 We're now going to read input from the keyboard and write to the pty master. The Fyne UI toolkit provides an effortless way of capturing keyboard input.
 
-{% highlight go %}
-package main
-
-import (
-	"os"
-	"os/exec"
-	"time"
-
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
-	"github.com/creack/pty"
-)
-
-func main() {
-	a := app.New()
-	w := a.NewWindow("germ")
-
-	ui := widget.NewTextGrid()       // Create a new TextGrid
-	ui.SetText("I'm on a terminal!") // Set text to display
-
-	c := exec.Command("/bin/bash")
-	p, err := pty.Start(c)
-
-	if err != nil {
-		fyne.LogError("Failed to open pty", err)
-		os.Exit(1)
-	}
-
-	defer c.Process.Kill()
-
-	onTypedKey := func(e *fyne.KeyEvent) {
-		if e.Name == fyne.KeyEnter || e.Name == fyne.KeyReturn {
-			_, _ = p.Write([]byte{'\r'})
-		}
-	}
-
-	onTypedRune := func(r rune) {
-		_, _ = p.WriteString(string(r))
-	}
-
-	w.Canvas().SetOnTypedKey(onTypedKey)
-	w.Canvas().SetOnTypedRune(onTypedRune)
-
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			b := make([]byte, 256)
-			_, err = p.Read(b)
-			if err != nil {
-				fyne.LogError("Failed to read pty", err)
-			}
-
-			ui.SetText(string(b))
-		}
-	}()
-
-	// Create a new container with a wrapped layout
-	// set the layout width to 420, height to 200
-	w.SetContent(
-		fyne.NewContainerWithLayout(
-			layout.NewGridWrapLayout(fyne.NewSize(420, 200)),
-			ui,
-		),
-	)
-
-	w.ShowAndRun()
-
-}
-{% endhighlight %}
-[Link to the Gist](https://gist.github.com/ishuah/6e39845670b156ffae429b986d283d13)
+<script src="https://gist.github.com/ishuah/6e39845670b156ffae429b986d283d13.js"></script>
 
 SetOnTypedKey captures special keypress events and passes them to our callback function, onTypedKey. Special keys include the escape key, enter key, backspace, etc. Our callback function only handles one special keypress event, the enter keypress. 
+
 SetOnTypedRune works very similarly to SetOnTypedKey, except instead of special keypress events, it captures character keypress events. The attached callback function onTypedRune writes the characters to the pty master.
+
 I've also added a goroutine that reads from the pty master and writes to our UI text grid. There's no buffer or cursor management. The result is beautiful chaos.
+
 When you run the program above and type a command, let's say 'ls -al.' You should see the UI update with the expected output. If you like throwing caution to the wind, run `ping 8.8.8.8`.
 
 <figure>
-	<img src="/images/htop-view-germ.png">
-	<figcaption>Bash runs as a subprocess, spawned by our program. Bash receives the command `ping 8.8.8.8` and spawns a subprocess.</figcaption>
+    <img src="/images/htop-view-germ.png">
+    <figcaption>Bash runs as a subprocess, spawned by our program. Bash receives the command `ping 8.8.8.8` and spawns a subprocess.</figcaption>
 </figure>
 
 We're not handling signals yet, so Ctrl-C will not stop the job. You'll have to terminate the terminal emulator.
@@ -215,115 +63,7 @@ We're not handling signals yet, so Ctrl-C will not stop the job. You'll have to 
 ## print to screen
 So far, we can type commands on our terminal emulator, receive command output, and chaotically print to our UI. Let's make a few improvements on how we print to screen. We'll update our display goroutine to display the pty output history instead of just printing the last line on the screen. The pseudoterminal doesn't manage output history. We'll have to handle it ourselves using an output buffer.
 
-{% highlight go %}
-package main
-
-import (
-	"bufio"
-	"io"
-	"os"
-	"os/exec"
-	"time"
-
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
-	"github.com/creack/pty"
-)
-
-// MaxBufferSize sets the size limit
-// for our command output buffer.
-const MaxBufferSize = 16
-
-func main() {
-	a := app.New()
-	w := a.NewWindow("germ")
-
-	ui := widget.NewTextGrid() // Create a new TextGrid
-
-	os.Setenv("TERM", "dumb")
-	c := exec.Command("/bin/bash")
-	p, err := pty.Start(c)
-
-	if err != nil {
-		fyne.LogError("Failed to open pty", err)
-		os.Exit(1)
-	}
-
-	defer c.Process.Kill()
-
-	// Callback function that handles special keypresses
-	onTypedKey := func(e *fyne.KeyEvent) {
-		if e.Name == fyne.KeyEnter || e.Name == fyne.KeyReturn {
-			_, _ = p.Write([]byte{'\r'})
-		}
-	}
-
-	// Callback function that handles character keypresses
-	onTypedRune := func(r rune) {
-		_, _ = p.WriteString(string(r))
-	}
-
-	w.Canvas().SetOnTypedKey(onTypedKey)
-	w.Canvas().SetOnTypedRune(onTypedRune)
-
-	buffer := [][]rune{}
-	reader := bufio.NewReader(p)
-
-	// Goroutine that reads from pty
-	go func() {
-		line := []rune{}
-		buffer = append(buffer, line)
-		for {
-			r, _, err := reader.ReadRune()
-
-			if err != nil {
-				if err == io.EOF {
-					return
-				}
-				os.Exit(0)
-			}
-
-			line = append(line, r)
-			buffer[len(buffer)-1] = line
-			if r == '\n' { // @Line 72
-				if len(buffer) > MaxBufferSize { // @Line 73 If the buffer is at capacity...
-					buffer = buffer[1:] // ...pop the first line in the buffer
-				}
-
-				line = []rune{}
-				buffer = append(buffer, line)
-			} // @Line 79
-		}
-	}()
-
-	// Goroutine that renders to UI
-	go func() {
-		for {
-			time.Sleep(100 * time.Millisecond)
-			ui.SetText("")
-			var lines string
-			for _, line := range buffer {
-				lines = lines + string(line)
-			}
-			ui.SetText(string(lines))
-		}
-	}()
-
-	// Create a new container with a wrapped layout
-	// set the layout width to 900, height to 325
-	w.SetContent(
-		fyne.NewContainerWithLayout(
-			layout.NewGridWrapLayout(fyne.NewSize(900, 325)),
-			ui,
-		),
-	)
-	w.ShowAndRun()
-}
-
-{% endhighlight %}
-[Link to the Gist](https://gist.github.com/ishuah/fa78f31e3ec1cc3f84ffe0a25dd1cf17)
+<script src="https://gist.github.com/ishuah/fa78f31e3ec1cc3f84ffe0a25dd1cf17.js"></script>
 
 Our output buffer comes in the form of a slice of rune slices. I've declared a constant MaxBufferSize to limit buffer size because this is what sane people do. You're probably wondering why I used a slice instead of an array. We'll come to that in a bit.
 
