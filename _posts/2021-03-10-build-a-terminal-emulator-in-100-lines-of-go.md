@@ -1,13 +1,13 @@
 ---
 layout: post
 title: Build A Simple Terminal Emulator In 100 Lines of Golang
-description: A deep dive into the history, legacy, and inner workings of the Linux TTY subsystem.
+description: A tiny codelab to help you understand how terminal emulators work.
 date: 2021-03-10 06:13:57
 image: '/images/27.jpg'
 tags: [linux, tty, terminal-emulator]
 ---
 
-_Photo by <a href="https://unsplash.com/@ngeshlew?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Lewis Ngugi</a> on <a href="/collections/1173243/terminal?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>_
+_Photo by <a href="https://unsplash.com/@ngeshlew?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Lewis Ngugi</a> on <a href="https://unsplash.com/photos/f5pTwLHCsAg">Unsplash</a>_
 
 In a previous [article](https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/), I wrote a brief introduction to the current state of the TTY Subsystem. This article builds on the concepts covered in that article, adding a practical understanding of how the TTY Subsystem works. We're building a simple [terminal emulator](https://en.wikipedia.org/wiki/Terminal_emulator) in Golang. This is installment is the second article in my 'terminal emulator' series. This post is the first of my three-part "terminal emulator" series.
 

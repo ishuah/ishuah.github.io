@@ -5,13 +5,13 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 11 Mar 2021 16:00:06 +0300</pubDate>
-    <lastBuildDate>Thu, 11 Mar 2021 16:00:06 +0300</lastBuildDate>
+    <pubDate>Thu, 11 Mar 2021 16:10:05 +0300</pubDate>
+    <lastBuildDate>Thu, 11 Mar 2021 16:10:05 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
         <title>Build A Simple Terminal Emulator In 100 Lines of Golang</title>
-        <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@ngeshlew?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Lewis Ngugi&lt;/a&gt; on &lt;a href=&quot;/collections/1173243/terminal?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+        <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@ngeshlew?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Lewis Ngugi&lt;/a&gt; on &lt;a href=&quot;https://unsplash.com/photos/f5pTwLHCsAg&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;In a previous &lt;a href=&quot;https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/&quot;&gt;article&lt;/a&gt;, I wrote a brief introduction to the current state of the TTY Subsystem. This article builds on the concepts covered in that article, adding a practical understanding of how the TTY Subsystem works. We’re building a simple &lt;a href=&quot;https://en.wikipedia.org/wiki/Terminal_emulator&quot;&gt;terminal emulator&lt;/a&gt; in Golang. This is installment is the second article in my ‘terminal emulator’ series. This post is the first of my three-part “terminal emulator” series.&lt;/p&gt;
 
