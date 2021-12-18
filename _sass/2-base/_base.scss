@@ -146,6 +146,8 @@ img,
   max-width: 100%;
   height: auto;
   vertical-align: middle;
+  display: block;
+  margin: 0 auto;
   &+em {
     display: inline-block;
     width: 100%;
@@ -189,15 +191,13 @@ table {
   border-width: 1px;
   border-color: $dark;
   border-collapse: collapse;
+  font-family: monospace;
 }
 
 table th {
   padding: 12px;
   font-size: 16px;
   text-align: left;
-  border: 1px solid $dark;
-  color: $white;
-  background-color: $blue-dark;
 }
 
 table tr {
