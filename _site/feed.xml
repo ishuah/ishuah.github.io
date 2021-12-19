@@ -5,8 +5,8 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 19 Dec 2021 21:56:40 +0300</pubDate>
-    <lastBuildDate>Sun, 19 Dec 2021 21:56:40 +0300</lastBuildDate>
+    <pubDate>Sun, 19 Dec 2021 22:19:34 +0300</pubDate>
+    <lastBuildDate>Sun, 19 Dec 2021 22:19:34 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -15,30 +15,27 @@
 
 &lt;p&gt;A few weeks ago, I came across this interesting paper, &lt;a href=&quot;https://cs.paperswithcode.com/paper/parsing-gigabytes-of-json-per-second&quot;&gt;Parsing Gigabytes of JSON per Second&lt;/a&gt;. 2.5 Gigabytes of JSON per second on commodity processors, to be precise. Three pages into the paper, I discovered that I needed more background knowledge on &lt;a href=&quot;https://en.wikipedia.org/wiki/SIMD&quot;&gt;SIMD&lt;/a&gt; instructions. SIMD is like the Mona Lisa, I have an idea of what it looks like, but that representation is far from the actual painting. After reading a few articles and numerous build errors later, I’m confident enough to write on the topic.&lt;/p&gt;
 
-&lt;h2 id=&quot;what-is-simd&quot;&gt;what is SIMD?&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/SIMD&quot;&gt;SIMD&lt;/a&gt;, short for Single Instruction Multiple Data, is a parallel processing model that applies a single operation to multiple sets of vectors.&lt;/p&gt;
-
 &lt;figure&gt;
-	&lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd.jpg&quot; width=&quot;450&quot; /&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd.jpg&quot; width=&quot;450&quot; /&gt;
 &lt;/figure&gt;
 
-&lt;p&gt;If you’re not familiar with SIMD, there are several great introductory &lt;a href=&quot;http://const.me/articles/simd/simd.pdf&quot;&gt;articles&lt;/a&gt; and &lt;a href=&quot;https://nccastaff.bournemouth.ac.uk/jmacey/Lectures/SIMD/#/&quot;&gt;slides&lt;/a&gt; on the topic.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/SIMD&quot;&gt;SIMD&lt;/a&gt;, short for Single Instruction Multiple Data, is a parallel processing model that applies a single operation to multiple sets of vectors. If you’re not familiar with SIMD, there are several great introductory &lt;a href=&quot;http://const.me/articles/simd/simd.pdf&quot;&gt;articles&lt;/a&gt; and &lt;a href=&quot;https://nccastaff.bournemouth.ac.uk/jmacey/Lectures/SIMD/#/&quot;&gt;slides&lt;/a&gt; on the topic.&lt;/p&gt;
 
 &lt;h2 id=&quot;the-setup&quot;&gt;the setup&lt;/h2&gt;
 &lt;p&gt;I chose to benchmark the dot product operation because it’s a cheap operation, constrained only by the input size.
 The input consists of two float vectors, &lt;em&gt;a&lt;/em&gt; and &lt;em&gt;b&lt;/em&gt;, each of size &lt;em&gt;n&lt;/em&gt;.&lt;/p&gt;
 &lt;figure&gt;
-	&lt;img class=&quot;inverted-svg&quot; src=&quot;/images/dot-product.svg&quot; /&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/dot-product.svg&quot; /&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Where &lt;em&gt;a&lt;/em&gt; and &lt;em&gt;b&lt;/em&gt; are vectors, &lt;em&gt;n&lt;/em&gt; is the size of the vectors, and &lt;em&gt;ai&lt;/em&gt; &amp;amp; &lt;em&gt;bi&lt;/em&gt; are vector components belonging to vectors &lt;em&gt;a&lt;/em&gt; &amp;amp; &lt;em&gt;b&lt;/em&gt;.&lt;/p&gt;
 &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Representation in pseudocode&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;number&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;dot_product&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
-	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -82,7 +79,7 @@ Firstly, all the key variables are &lt;em&gt;type&lt;/em&gt; &lt;strong&gt;__m25
 &lt;p&gt;I expected &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product_256&lt;/code&gt; to be faster, but I did not anticipate the big gap. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;81.58%&lt;/code&gt; faster with an input size of 1MB, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;55.54%&lt;/code&gt; faster with an input size of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;256MB&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-	&lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd-graph.svg&quot; /&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd-graph.svg&quot; /&gt;
 &lt;/figure&gt;
 
 &lt;h3 id=&quot;analysis-i&quot;&gt;analysis I&lt;/h3&gt;
@@ -123,7 +120,7 @@ Firstly, all the key variables are &lt;em&gt;type&lt;/em&gt; &lt;strong&gt;__m25
 &lt;p&gt;Both functions benchmark at almost equal speeds. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product_256&lt;/code&gt; has the biggest lead, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;14.65%&lt;/code&gt; (input size, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;8 MB&lt;/code&gt;). &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product&lt;/code&gt; is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2.73%&lt;/code&gt; faster on the largest input size, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;256 MB&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-	&lt;img class=&quot;inverted-svg&quot; src=&quot;/images/ffast-math-graph.svg&quot; /&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/ffast-math-graph.svg&quot; /&gt;
 &lt;/figure&gt;
 
 &lt;h3 id=&quot;analysis-ii&quot;&gt;analysis II&lt;/h3&gt;
@@ -148,7 +145,7 @@ vfmadd132ps   ymm7, ymm3, ymmword ptr [rdi + 4*rdx + 96] # ymm7 = (ymm7 * mem) +
 
 &lt;p&gt;Hardware, specifically the CPU, is the determining factor when optimizing with SIMD. Most modern CPUs support &lt;a href=&quot;https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#:~:text=CPUs%20with%20AVX2%5Bedit%5D&quot;&gt;AVX2&lt;/a&gt;, fewer support &lt;a href=&quot;https://en.wikipedia.org/wiki/AVX-512#:~:text=F%2C%20VL%2C%20BW-,CPUs%20with%20AVX-512,-%5Bedit%5D&quot;&gt;AVX2-512&lt;/a&gt; (512 bit wide registers).&lt;/p&gt;
 </description>
-        <pubDate>Sun, 19 Dec 2021 09:00:00 +0300</pubDate>
+        <pubDate>Sun, 19 Dec 2021 22:12:21 +0300</pubDate>
         <link>https://ishuah.com/2021/12/19/a-benchmark-study-simd-intrinsics/</link>
         <guid isPermaLink="true">https://ishuah.com/2021/12/19/a-benchmark-study-simd-intrinsics/</guid>
         

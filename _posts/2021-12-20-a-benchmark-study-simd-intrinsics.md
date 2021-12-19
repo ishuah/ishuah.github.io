@@ -2,7 +2,7 @@
 layout: post
 title: "SIMD intrinsics: A Benchmark Study"
 description: Benchmarking scalar and SIMD intrinsics 
-date: 2021-12-19 06:00:00
+date: 2021-12-19 19:12:21
 image: '/images/numbers.jpg'
 tags: [SIMD, AVX2, vector-intrinsics]
 ---
@@ -11,33 +11,28 @@ _Photo by <a href="https://unsplash.com/@enric_moreu?utm_source=unsplash&utm_med
 
 A few weeks ago, I came across this interesting paper, [Parsing Gigabytes of JSON per Second](https://cs.paperswithcode.com/paper/parsing-gigabytes-of-json-per-second). 2.5 Gigabytes of JSON per second on commodity processors, to be precise. Three pages into the paper, I discovered that I needed more background knowledge on [SIMD](https://en.wikipedia.org/wiki/SIMD) instructions. SIMD is like the Mona Lisa, I have an idea of what it looks like, but that representation is far from the actual painting. After reading a few articles and numerous build errors later, I’m confident enough to write on the topic.
 
-
-## what is SIMD?
-[SIMD](https://en.wikipedia.org/wiki/SIMD), short for Single Instruction Multiple Data, is a parallel processing model that applies a single operation to multiple sets of vectors.
-
 <figure>
-	<img class="inverted-svg" src="/images/simd.jpg" width="450">
+  <img class="inverted-svg" src="/images/simd.jpg" width="450">
 </figure>
 
-If you're not familiar with SIMD, there are several great introductory [articles](http://const.me/articles/simd/simd.pdf) and [slides](https://nccastaff.bournemouth.ac.uk/jmacey/Lectures/SIMD/#/) on the topic.
-
+[SIMD](https://en.wikipedia.org/wiki/SIMD), short for Single Instruction Multiple Data, is a parallel processing model that applies a single operation to multiple sets of vectors. If you're not familiar with SIMD, there are several great introductory [articles](http://const.me/articles/simd/simd.pdf) and [slides](https://nccastaff.bournemouth.ac.uk/jmacey/Lectures/SIMD/#/) on the topic.
 
 ## the setup
 I chose to benchmark the dot product operation because it’s a cheap operation, constrained only by the input size.
 The input consists of two float vectors, _a_ and _b_, each of size _n_.
 <figure>
-	<img class="inverted-svg" src="/images/dot-product.svg">
+  <img class="inverted-svg" src="/images/dot-product.svg">
 </figure>
 
 Where _a_ and _b_ are vectors, _n_ is the size of the vectors, and _ai_ & _bi_ are vector components belonging to vectors _a_ & _b_.
 ```c
 // Representation in pseudocode
 number function dot_product(a[], b[], n) {
-	sum = 0;
-	for (i = 0; i <= n; i++) {
-		sum = a[i] + b[i];
-	}
-	return sum;
+  sum = 0;
+  for (i = 0; i <= n; i++) {
+    sum = a[i] + b[i];
+  }
+  return sum;
 }
 ```
 
@@ -57,7 +52,7 @@ Firstly, all the key variables are _type_ **__m256**, a data type representing a
 
 The loop count increments by eight because the function [**\_mm256_loadu_ps**](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions/intrinsics-for-load-and-store-operations-1/mm256-loadu-ps.html) (L21, L22) loads eight floating-point values from unaligned memory into a **__m256** vector. The function [**\_mm256_fmadd_ps**](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions-2/intrinsics-for-fused-multiply-add-operations/mm-fmadd-ps-mm256-fmadd-ps.html) multiplies matching elements from the first two vectors and adds them to the value in the matching index of the third vector. To ensure correct computations, I added an `assert` on `L16` to ensure the input arrays size is a multiple of 8.
 
-The function [**\_mm256_storeu_ps**](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions/intrinsics-for-load-and-store-operations-1/mm256-storeu-ps.html) moves eight floating-point values from a **__m256** vector to an unaligned memory location. 
+The function [**\_mm256_storeu_ps**](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions/intrinsics-for-load-and-store-operations-1/mm256-storeu-ps.html) moves eight floating-point values from a **__m256** vector to an unaligned memory location.
 
 ### compare results
 
@@ -81,7 +76,7 @@ Each row represents a comparison between `dot_product` and `dot_product_256` wit
 I expected `dot_product_256` to be faster, but I did not anticipate the big gap. `81.58%` faster with an input size of 1MB, `55.54%` faster with an input size of `256MB`.
 
 <figure>
-	<img class="inverted-svg" src="/images/simd-graph.svg">
+  <img class="inverted-svg" src="/images/simd-graph.svg">
 </figure>
 
 ### analysis I
@@ -118,7 +113,7 @@ Up until this point, I've been using conservative optimization compiler flags `-
 Both functions benchmark at almost equal speeds. `dot_product_256` has the biggest lead, `14.65%` (input size, `8 MB`). `dot_product` is `2.73%` faster on the largest input size, `256 MB`.
 
 <figure>
-	<img class="inverted-svg" src="/images/ffast-math-graph.svg">
+  <img class="inverted-svg" src="/images/ffast-math-graph.svg">
 </figure>
 
 ### analysis II
