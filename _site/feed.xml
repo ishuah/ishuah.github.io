@@ -5,15 +5,164 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 11 Mar 2021 16:10:05 +0300</pubDate>
-    <lastBuildDate>Thu, 11 Mar 2021 16:10:05 +0300</lastBuildDate>
+    <pubDate>Sun, 19 Dec 2021 22:19:34 +0300</pubDate>
+    <lastBuildDate>Sun, 19 Dec 2021 22:19:34 +0300</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>SIMD intrinsics: A Benchmark Study</title>
+        <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@enric_moreu?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Enric Moreu&lt;/a&gt; on &lt;a href=&quot;https://unsplash.com/s/photos/math-numbers?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;A few weeks ago, I came across this interesting paper, &lt;a href=&quot;https://cs.paperswithcode.com/paper/parsing-gigabytes-of-json-per-second&quot;&gt;Parsing Gigabytes of JSON per Second&lt;/a&gt;. 2.5 Gigabytes of JSON per second on commodity processors, to be precise. Three pages into the paper, I discovered that I needed more background knowledge on &lt;a href=&quot;https://en.wikipedia.org/wiki/SIMD&quot;&gt;SIMD&lt;/a&gt; instructions. SIMD is like the Mona Lisa, I have an idea of what it looks like, but that representation is far from the actual painting. After reading a few articles and numerous build errors later, I’m confident enough to write on the topic.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd.jpg&quot; width=&quot;450&quot; /&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/SIMD&quot;&gt;SIMD&lt;/a&gt;, short for Single Instruction Multiple Data, is a parallel processing model that applies a single operation to multiple sets of vectors. If you’re not familiar with SIMD, there are several great introductory &lt;a href=&quot;http://const.me/articles/simd/simd.pdf&quot;&gt;articles&lt;/a&gt; and &lt;a href=&quot;https://nccastaff.bournemouth.ac.uk/jmacey/Lectures/SIMD/#/&quot;&gt;slides&lt;/a&gt; on the topic.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-setup&quot;&gt;the setup&lt;/h2&gt;
+&lt;p&gt;I chose to benchmark the dot product operation because it’s a cheap operation, constrained only by the input size.
+The input consists of two float vectors, &lt;em&gt;a&lt;/em&gt; and &lt;em&gt;b&lt;/em&gt;, each of size &lt;em&gt;n&lt;/em&gt;.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/dot-product.svg&quot; /&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;Where &lt;em&gt;a&lt;/em&gt; and &lt;em&gt;b&lt;/em&gt; are vectors, &lt;em&gt;n&lt;/em&gt; is the size of the vectors, and &lt;em&gt;ai&lt;/em&gt; &amp;amp; &lt;em&gt;bi&lt;/em&gt; are vector components belonging to vectors &lt;em&gt;a&lt;/em&gt; &amp;amp; &lt;em&gt;b&lt;/em&gt;.&lt;/p&gt;
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Representation in pseudocode&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;number&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;dot_product&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The input size is computed as &lt;em&gt;n&lt;/em&gt; &lt;strong&gt;x&lt;/strong&gt; float size (bytes) &lt;strong&gt;x&lt;/strong&gt; number of vectors (2).  To avoid memory shortage, I capped the input size at 256 MB (two 128 MB vectors).&lt;/p&gt;
+
+&lt;p&gt;I ran all my benchmarks on a Quad core Intel Core i7-8550U CPU with a 1MB L2 cache and an 8MB L3 cache. This CPU supports AVX2.&lt;/p&gt;
+
+&lt;h2 id=&quot;implementation&quot;&gt;implementation&lt;/h2&gt;
+&lt;p&gt;I started by comparing two functions, a scalar implementation, and a vectorized implementation.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/ishuah/aef6e8a54307e7a99230f4f357b4ba1f.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;The first implementation matches the pseudocode example above. A loop that runs &lt;em&gt;n&lt;/em&gt; times, adding the result of &lt;em&gt;a[i]&lt;/em&gt; &lt;strong&gt;x&lt;/strong&gt; &lt;em&gt;b[i]&lt;/em&gt; to the variable &lt;em&gt;sum&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The vectorized implementation follows the same pattern but has several key differences.
+Firstly, all the key variables are &lt;em&gt;type&lt;/em&gt; &lt;strong&gt;__m256&lt;/strong&gt;, a data type representing a 256-bit SIMD register. In simple terms, this is a vector of eight 32-bit floating-point  values.&lt;/p&gt;
+
+&lt;p&gt;The loop count increments by eight because the function &lt;a href=&quot;https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions/intrinsics-for-load-and-store-operations-1/mm256-loadu-ps.html&quot;&gt;&lt;strong&gt;_mm256_loadu_ps&lt;/strong&gt;&lt;/a&gt; (L21, L22) loads eight floating-point values from unaligned memory into a &lt;strong&gt;__m256&lt;/strong&gt; vector. The function &lt;a href=&quot;https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions-2/intrinsics-for-fused-multiply-add-operations/mm-fmadd-ps-mm256-fmadd-ps.html&quot;&gt;&lt;strong&gt;_mm256_fmadd_ps&lt;/strong&gt;&lt;/a&gt; multiplies matching elements from the first two vectors and adds them to the value in the matching index of the third vector. To ensure correct computations, I added an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;assert&lt;/code&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;L16&lt;/code&gt; to ensure the input arrays size is a multiple of 8.&lt;/p&gt;
+
+&lt;p&gt;The function &lt;a href=&quot;https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions/intrinsics-for-load-and-store-operations-1/mm256-storeu-ps.html&quot;&gt;&lt;strong&gt;_mm256_storeu_ps&lt;/strong&gt;&lt;/a&gt; moves eight floating-point values from a &lt;strong&gt;__m256&lt;/strong&gt; vector to an unaligned memory location.&lt;/p&gt;
+
+&lt;h3 id=&quot;compare-results&quot;&gt;compare results&lt;/h3&gt;
+
+&lt;p&gt;I used &lt;a href=&quot;https://github.com/google/benchmark&quot;&gt;google/benchmark&lt;/a&gt; to run my benchmarks.&lt;/p&gt;
+
+&lt;pre&gt;Benchmark                            Time  CPU  Time Old  Time New  CPU Old  CPU New
+-----------------------------------------------------------------------------------
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/1&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.8158  -0.8158&lt;/font&gt;  155357  28624  155354  28623
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/2&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.8117  -0.8117&lt;/font&gt;  302681  56987  302667  56987
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/4&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.8004  -0.8004&lt;/font&gt;  595212  118786  595200  118786
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/8&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.7486  -0.7486&lt;/font&gt;  1260476  316823  1260469  316824
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/16&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.6466  -0.6466&lt;/font&gt;  2711183  958018  2711140  957993
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/32&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.6019  -0.6019&lt;/font&gt;  5450561  2169969  5450430  2169929
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/64&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.5795  -0.5795&lt;/font&gt;  11411248  4797997  11411161  4797871
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/128&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.5781  -0.5781&lt;/font&gt;  23172851  9776048  23172549  9775924
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/256&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.5554  -0.5554&lt;/font&gt;  44252652  19673917  44251304  19673560
+&lt;/pre&gt;
+
+&lt;p&gt;Each row represents a comparison between &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product_256&lt;/code&gt; with different input sizes. The values in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Time&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CPU&lt;/code&gt; columns are calculated as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(new - old) / |old|&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x 100&lt;/code&gt; to get percentage). The last four columns are time measurements in nanoseconds.&lt;/p&gt;
+
+&lt;p&gt;I expected &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product_256&lt;/code&gt; to be faster, but I did not anticipate the big gap. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;81.58%&lt;/code&gt; faster with an input size of 1MB, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;55.54%&lt;/code&gt; faster with an input size of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;256MB&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/simd-graph.svg&quot; /&gt;
+&lt;/figure&gt;
+
+&lt;h3 id=&quot;analysis-i&quot;&gt;analysis I&lt;/h3&gt;
+
+&lt;iframe width=&quot;760px&quot; height=&quot;760px&quot; src=&quot;https://godbolt.org/e?readOnly=true&amp;amp;hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXAEx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApJIBCZ86SX1kBPAMqN0AYVS0AriwYhpLgBk8BkwAOW8AI0xiEABmDVIAB1QFQkcGdy8fPySUtIEgkPCWKJj4m0w7BwEhAiZiAkzvX2lbTHt02vqCQrDI6LiEhTqGpuzWkZ7gvpKB%2BIBKG1RPYmR2DjNY4OQvLABqE1jXJgUlBoA6BEPsEw0AQU3t3cwDo7wWFmCCYmDL69uHvcAPRAvbDYhMPDABAEfjEADu9XQe3eiXobEETGqDABVFoqCxe3QqAIAH1EsQMJ57NR8YSAFRMUh7PEEgh7ekRZmpABemFJ7IY8wOAHZLPc9iy6eyFN5XgARPYaQ7iu6StAMYZStn0va0d6EBV7JgHCx7HGxVWSuF7CCvczG16uPUGggq41WKzMiKeizCkxigGSyWylimyyxRVMEwAVnMypjit1PrjCflKqDovTEr2xEwBBWDDB3gz9wD2cBdxBezuADUABqSFEsNGYDF1bG46VEknkynoalkyQxgBstLZHKZ2oZXLBeD5AvN/sDOclJzOBAgRbMMb2AA4FYdFRp5qW1cHSaSWMOR8Ww0e9lfr6PSUoCHzKeSFBBT5bM8HeX5dl9U%2BdkHyLABaPYRTPf9rRIW1AMXPAjWVS0USdF1QPdFDPUjfdlytYNJUvZ9bwiTwqC4I0nxvUk6QHL8IBNKwUV/IjiNIm89goqgmwfWiXwYzwmIicM2LPYiQzlASPjoqgWCYdB0FEyiuG9SjpDvdi4PLAE4NZQleKoaJY3MPdY3TP9V0fOSX2GEhMBExJv2M6JuW8HSbLzAtiCLNziDMtNxICsyuEskLKJMwK40kCLWNCuNYnis1EvMAAWFKHTSmMsrgqS0pHLKeKi0y4xgxNYJFeUOEWWhOBjXhfA4LRSFQThXF9B0FGWVYXk2HhSAITRasWABrEAYwSeqOHSpqRrazheAUEAEmGlratIOBYCQNAWzodyKAgPbEgOmIdkMYApA0BIaFoAhohWiAIgWiJgnqABPThBr29sAHkGFoL6NtILBFKMcQQfwPMOgAN0wFaQcwVR2k8B7vt4L5KgW/UIghYgPvcLAFu%2Bd4McWPEmGABRazwTB4T%2BxJGAxmRBBEMR2CkVn5CUNQFt0dSDCMFAuv0PAIhW2BmDYEAogYZAEEU4gxtIeGYm4dKtHmRZUESbFEYg4Z0CPUwLCsSQND2CCWBHdKrb%2B2IraVhWj2YBx4eWyp2mxZwGDcDxmj0QJpmKUo9GSVJsTGXx1Ij/IGF6UOBnUtoOhqSZo70VPsS6BpE/6GIU4zgPsiL7p89mQvFh6lY1j0b5MHWHg6oa%2BaQfajhVD3EcINtvYLqMPYpHODQR9tTqzYsZlcEIBCBuZdx9voYhTViLh5l4datfGybps4ObSGa1qO%2BW1ahpG7X9E4SQ2%2BPpbz42y%2B1dSJx0qAA%3D%3D&quot;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;The scalar implementation has three AVX instructions corresponding to the loop statement &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sum += a[0] * b[0];&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.felixcloutier.com/x86/MOVSS.html&quot;&gt;vmovss&lt;/a&gt; unloads the pointer value &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a[0]&lt;/code&gt; into a 128 bit register.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.felixcloutier.com/x86/MULSS.html&quot;&gt;vmulss&lt;/a&gt; multiplies the value &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a[0]&lt;/code&gt; with the value at pointer reference &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;b[0]&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.felixcloutier.com/x86/ADDSS.html&quot;&gt;vaddss&lt;/a&gt; adds the result from the multiplication operation above to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sum&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Compare that with the vectorized implementation instructions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.felixcloutier.com/x86/MOVUPS.html&quot;&gt;vmovups&lt;/a&gt; loads eight floating-point values from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a&lt;/code&gt; into a SIMD register.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.felixcloutier.com/x86/VFMADD132PS%3AVFMADD213PS%3AVFMADD231PS.html&quot;&gt;vfmadd231ps&lt;/a&gt; multiplies the eight floating-point values loaded from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a&lt;/code&gt; with eight floating-point values loaded from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;b&lt;/code&gt; and adds the result to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sum&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xmm0-xmm7&lt;/code&gt; registers used in the scalar implementations are 128 bit wide. In contrast, the vectorized implementation uses &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ymm0-ymm7&lt;/code&gt; registers, which are 256 bit wide. The letters FMA in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;vfmadd231ps&lt;/code&gt; stand for &lt;a href=&quot;https://link.springer.com/content/pdf/10.1007%2F978-0-8176-4705-6_5.pdf&quot;&gt;Fused Multiply-Add&lt;/a&gt;, the technical term for the floating-point operation of multiplication and addition in one step.&lt;/p&gt;
+
+&lt;h2 id=&quot;compiler-optimization&quot;&gt;compiler optimization&lt;/h2&gt;
+&lt;p&gt;Up until this point, I’ve been using conservative optimization compiler flags &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-O3&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-march=native&lt;/code&gt;. I wanted to test another flag &lt;a href=&quot;https://kristerw.github.io/2021/10/19/fast-math/&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-ffast-math&lt;/code&gt;&lt;/a&gt;, which tells the compiler to perform more aggressive floating-point optimizations. Very similar to cutting the brakes on your car to make it go faster.&lt;/p&gt;
+
+&lt;pre&gt;Benchmark                            Time  CPU  Time Old  Time New  CPU Old  CPU New
+-----------------------------------------------------------------------------------
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/1&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  -0.0500  -0.0500&lt;/font&gt;  25535  24258  25535  24257
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/2&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  -0.0556  -0.0556&lt;/font&gt;  51505  48644  51504  48642
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/4&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  -0.0546  -0.0546&lt;/font&gt;  105722  99951  105718  99949
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/8&lt;/font&gt;&lt;font color=&quot;#93A1A1&quot;&gt;  -0.1465  -0.1465&lt;/font&gt;  385659  329162  385646  329135
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/16&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt; +0.0208 +0.0208&lt;/font&gt;  949516  969264  949485  969199
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/32&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  -0.0118  -0.0118&lt;/font&gt;  2301268  2274091  2301235  2274021
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/64&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  +0.0037  +0.0037&lt;/font&gt;  4863097  4881084  4862852  4880919
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/128&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  +0.0220  +0.0220&lt;/font&gt;  9883521  10101137  9883309  10101054
+&lt;font color=&quot;#586E75&quot;&gt;[dot_product vs. dot_product_256]/256&lt;/font&gt;&lt;font color=&quot;#FDF6E3&quot;&gt;  +0.0273  +0.0273&lt;/font&gt;  19079586  19601290  19079604  19600141
+&lt;/pre&gt;
+
+&lt;p&gt;Both functions benchmark at almost equal speeds. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product_256&lt;/code&gt; has the biggest lead, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;14.65%&lt;/code&gt; (input size, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;8 MB&lt;/code&gt;). &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dot_product&lt;/code&gt; is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2.73%&lt;/code&gt; faster on the largest input size, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;256 MB&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;img class=&quot;inverted-svg&quot; src=&quot;/images/ffast-math-graph.svg&quot; /&gt;
+&lt;/figure&gt;
+
+&lt;h3 id=&quot;analysis-ii&quot;&gt;analysis II&lt;/h3&gt;
+
+&lt;iframe width=&quot;760px&quot; height=&quot;800px&quot; src=&quot;https://godbolt.org/e?readOnly=true&amp;amp;hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXAEx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApJIBCZ86SX1kBPAMqN0AYVS0AriwYhJ0lwAZPAZMADlvACNMYhAATlIAB1QFQkcGdy8fP2lk1IcBYNCIlmjYhNtMe3ShAiZiAkzvX38bTDsChlr6giLwqJj4mzqGpuzWhRHekP7SwbiAShtUT2Jkdg4zAGYQ5C8sAGoTLdcmBSUGgDoEY%2BwTDQBBbd39zCOTvBYWEIJiEOvbvcno8APQgg6TYhMPDABAEfjEADu9XQB0%2BiXobEETE6QKotFQOIO6FQBAA%2BoliBhPPZqASiQAqJikA74wkEA4MyIs1IAL0wZI5DAWRwA7JZHgdWfSOQpvO8ACIHDTHCUPKVoBiTaXshkHWifQiKg5MI4WA4MVVAqUIg4Qd7mE3vVz6w0EVUmqxWFmRL0WEUmcXWqUQ%2BVerZKpgmACs5hV0aVet9sfjCqtkrFaYzxEwBFWDFDLHTT1FWeBDzBBweADUABqSNEsDGYLF1XGPNlEknkynU%2BxkyTRgBsdPZnOZOsZ3IheH5gotAaDGalZwuBAgBbM0YOAA5FcclRoFsWQwcyWSWIOh4XjRfL8OyUoCPyqRSFBBj1s1aeZ3OOQbvg5A8LQOABaA5RWLYMQ1tCA%2BQFDk8GNFUvzRZ1XUAj0kPDJUd0Xb8f3Pe9r0iTwqC4W8vivMl6XQTw3wgU0rDRT8CNPIirwOUiqAbYC72o2j6MSd9IjNR08FY6CQzlFhKOIskqBYJh0HQBjuK4H0yOkQtJOXTMgSkzsOW4qgYhjcwdxjNMvyk/iH0mEhMCEkSyNMsgdJPEMczzYgCxMsyUyssSuNcgLzC4ILmP84hzMkSLzWi8ytnix1EtjAAWFKQqoNzzOjFKpJ/NLzCHLLisghMoNLDglloTho14XwOC0UhUE4Vw/UdBQVjWN5th4UgCE0GqlgAaxAaMNH0Th0sa4bWs4XgFBAKahuamrSDgWAkDQJs6BichKF2xJ9tiPZDGAKQNCmmhaAIGJlogSJ5siEJ6gAT04AbdtbAB5BhaE%2B9bSCwJSjHEYH8BzaoADdMGW4HMFUKpPHur7eB%2Bdp5oNSIoWId73Cwebfk%2BdGlnxJhgAUas8EwRFfsSRh0ZkQQRDEdgpBZ%2BQlDUebdA0gwjBQTr9DwSJltgZg2BAaIGGQBAlOIUbSDh2JuHSrQFiWVBEk6BHQMmdAD1MCwrEkDQwJYId0rA36tkt%2Bp5YPZgHDhsCcrOAhQKUggECW9oqk6ZwGDcDxmhAIctlIIIZhKMoQC2UUkhSNIBDGXwEjyVOGD6OPBkTtoOhqKZ04jqPKmqARugaXOBliAvJh6UuKimWu5nr0Ulm61Z1j0X5MA2HhavqubgbajhVB3IdQOtg5zqMA4pEuDRl7tDrTYsFlcEIEgzS2DSDncPb6GIPeuAWXg1s1saJqmuqOFm0gmpa8elpWwbhq16aOEkUeX8Wj%2B60v6q1SE4dKQA%3D&quot;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;The scalar implementation compiled looks very different. The loop statement &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sum += a[0] * b[0];&lt;/code&gt; now has 29 corresponding Assembly instructions. The compiler applied &lt;a href=&quot;https://en.wikipedia.org/wiki/Loop_unrolling&quot;&gt;loop unrolling&lt;/a&gt;, an optimization strategy that minimizes the cost of loop overhead. The loop unrolls in four iterations. By examining one iteration, you’ll notice the use of 256 bit registers and SIMD intrinsics.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-assembly&quot;&gt;# First iteration: L33 - L40
+vmovups ymm4, ymmword ptr [rsi + 4*rdx]
+vmovups ymm5, ymmword ptr [rsi + 4*rdx + 32]
+vmovups ymm6, ymmword ptr [rsi + 4*rdx + 64]
+vmovups ymm7, ymmword ptr [rsi + 4*rdx + 96]
+vfmadd132ps   ymm4, ymm0, ymmword ptr [rdi + 4*rdx] # ymm4 = (ymm4 * mem) + ymm0
+vfmadd132ps   ymm5, ymm1, ymmword ptr [rdi + 4*rdx + 32] # ymm5 = (ymm5 * mem) + ymm1
+vfmadd132ps   ymm6, ymm2, ymmword ptr [rdi + 4*rdx + 64] # ymm6 = (ymm6 * mem) + ymm2
+vfmadd132ps   ymm7, ymm3, ymmword ptr [rdi + 4*rdx + 96] # ymm7 = (ymm7 * mem) + ymm3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;Thanks to compiler optimization, the scalar implementation matches the vector implementation performance-wise. Both cases use SIMD registers and intrinsics, whether intentionally written or optimized later by the compiler. The optimized implementations handle larger data sets faster, &lt;a href=&quot;https://lemire.me/blog/2018/07/05/how-quickly-can-you-compute-the-dot-product-between-two-large-vectors/&quot;&gt;but they have limits too&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Hardware, specifically the CPU, is the determining factor when optimizing with SIMD. Most modern CPUs support &lt;a href=&quot;https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#:~:text=CPUs%20with%20AVX2%5Bedit%5D&quot;&gt;AVX2&lt;/a&gt;, fewer support &lt;a href=&quot;https://en.wikipedia.org/wiki/AVX-512#:~:text=F%2C%20VL%2C%20BW-,CPUs%20with%20AVX-512,-%5Bedit%5D&quot;&gt;AVX2-512&lt;/a&gt; (512 bit wide registers).&lt;/p&gt;
+</description>
+        <pubDate>Sun, 19 Dec 2021 22:12:21 +0300</pubDate>
+        <link>https://ishuah.com/2021/12/19/a-benchmark-study-simd-intrinsics/</link>
+        <guid isPermaLink="true">https://ishuah.com/2021/12/19/a-benchmark-study-simd-intrinsics/</guid>
+        
+        <category>SIMD</category>
+        
+        <category>AVX2</category>
+        
+        <category>vector-intrinsics</category>
+        
+        
+      </item>
     
       <item>
         <title>Build A Simple Terminal Emulator In 100 Lines of Golang</title>
         <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@ngeshlew?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Lewis Ngugi&lt;/a&gt; on &lt;a href=&quot;https://unsplash.com/photos/f5pTwLHCsAg&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;In a previous &lt;a href=&quot;https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/&quot;&gt;article&lt;/a&gt;, I wrote a brief introduction to the current state of the TTY Subsystem. This article builds on the concepts covered in that article, adding a practical understanding of how the TTY Subsystem works. We’re building a simple &lt;a href=&quot;https://en.wikipedia.org/wiki/Terminal_emulator&quot;&gt;terminal emulator&lt;/a&gt; in Golang. This is installment is the second article in my ‘terminal emulator’ series. This post is the first of my three-part “terminal emulator” series.&lt;/p&gt;
+&lt;p&gt;In a previous &lt;a href=&quot;https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/&quot;&gt;article&lt;/a&gt;, I wrote a brief introduction to the current state of the TTY Subsystem. This article builds on the concepts covered in that article, adding a practical understanding of how the TTY Subsystem works. We’re building a simple &lt;a href=&quot;https://en.wikipedia.org/wiki/Terminal_emulator&quot;&gt;terminal emulator&lt;/a&gt; in Golang. This installment is the second article in my ‘terminal emulator’ series.&lt;/p&gt;
 
 &lt;h2 id=&quot;the-user-interface&quot;&gt;the user interface&lt;/h2&gt;
 &lt;p&gt;The first thing we’re going to build is the user interface. It’s nothing fancy, just a triangle with legible text in it.
