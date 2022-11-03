@@ -5,12 +5,12 @@
     <description>Free Spirit</description>
     <link>https://ishuah.com/</link>
     <atom:link href="https://ishuah.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 30 May 2022 22:20:44 +0300</pubDate>
-    <lastBuildDate>Mon, 30 May 2022 22:20:44 +0300</lastBuildDate>
-    <generator>Jekyll v4.2.2</generator>
+    <pubDate>Thu, 03 Nov 2022 17:45:25 +0300</pubDate>
+    <lastBuildDate>Thu, 03 Nov 2022 17:45:25 +0300</lastBuildDate>
+    <generator>Jekyll v4.3.1</generator>
     
       <item>
-        <title>A Memoir on Garbage Collection</title>
+        <title>A Memoir on Reference Counting</title>
         <description>&lt;p&gt;&lt;em&gt;Photo by &lt;a href=&quot;https://unsplash.com/@gary_at_unsplash?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Gary Chan&lt;/a&gt; on &lt;a href=&quot;https://unsplash.com/s/photos/garbage-collection?utm_source=unsplash&amp;amp;utm_medium=referral&amp;amp;utm_content=creditCopyText&quot;&gt;Unsplash&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;In 1960, John McCarthy published a paper titled &lt;a href=&quot;http://www-formal.stanford.edu/jmc/recursive.pdf&quot;&gt;Recursive Functions of Symbolic Expressions and Their Computation by Machine, Part I&lt;/a&gt;. In it, he meticulously describes the original implementation of Lisp, the second oldest programming language still in use. As part of the language, McCarthy describes an algorithm that automatically reclaims memory. He calls it a “reclamation cycle”, but in a footnote added in 1995, he writes:&lt;/p&gt;
@@ -62,8 +62,8 @@
 &lt;/ul&gt;
 </description>
         <pubDate>Mon, 30 May 2022 21:11:37 +0300</pubDate>
-        <link>https://ishuah.com/2022/05/30/a-memoir-on-garbage-collection/</link>
-        <guid isPermaLink="true">https://ishuah.com/2022/05/30/a-memoir-on-garbage-collection/</guid>
+        <link>https://ishuah.com/2022/05/30/a-memoir-on-reference-counting/</link>
+        <guid isPermaLink="true">https://ishuah.com/2022/05/30/a-memoir-on-reference-counting/</guid>
         
         <category>memory-management</category>
         
@@ -434,13 +434,13 @@ dhcp-host=dc:a6:32:00:00:02,10.0.0.51&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#install microk8s&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;snap &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;microk8s &lt;span class=&quot;nt&quot;&gt;--classic&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--channel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1.20/stable
-&lt;span class=&quot;c&quot;&gt;# add the current user to the group 'microk8s'&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# add the current user to the group &apos;microk8s&apos;&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;usermod &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-G&lt;/span&gt; microk8s &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# change ownership of the file ~/.kube to the current user&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;sudo chown&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt; ~/.kube
-&lt;span class=&quot;c&quot;&gt;# add an alias for the command 'microk8s kubectl'&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# add an alias for the command &apos;microk8s kubectl&apos;&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;tee&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; ~/.bash_aliases &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;EOF
-&lt;span class=&quot;nb&quot;&gt;alias &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;kubectl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'microk8s kubectl'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;alias &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;kubectl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;microk8s kubectl&apos;&lt;/span&gt;
 EOF
 
 &lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ~/.bash_aliases&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
@@ -465,9 +465,9 @@ If the node you are adding is not reachable through the default interface you ca
  microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;172.17.0.1:25000/182474c990a59770b1abe3ef9a5a40fd
  microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;10.1.24.0:25000/182474c990a59770b1abe3ef9a5a40fd&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;I &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh'd&lt;/code&gt; into one of the RPi nodes and ran the command:&lt;/p&gt;
+&lt;p&gt;I &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh&apos;d&lt;/code&gt; into one of the RPi nodes and ran the command:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# I used the master IP 10.0.0.1 because that's the interface IP address that's reachable by the node&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# I used the master IP 10.0.0.1 because that&apos;s the interface IP address that&apos;s reachable by the node&lt;/span&gt;
 microk8s &lt;span class=&quot;nb&quot;&gt;join &lt;/span&gt;10.0.0.1:25000/182474c990a59770b1abe3ef9a5a40fd&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;I generated a new connection string and added the other RPi node to the cluster.&lt;/p&gt;
@@ -507,7 +507,7 @@ kubernetes-dashboard is running at https://127.0.0.1:16443/api/v1/namespaces/kub
 &lt;p&gt;The Kubernetes dashboard has a secure token based login system. I’m not too concerned about security (the Kubernetes cluster is only accessible from my home network) so I disabled the login mechanism on the dashboard.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;microk8s.kubectl &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; kube-system edit deploy kubernetes-dashboard &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; yaml
-&lt;span class=&quot;c&quot;&gt;# Add '- --enable-skip-login' after '- --namespace=kube-system'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;span class=&quot;c&quot;&gt;# Add &apos;- --enable-skip-login&apos; after &apos;- --namespace=kube-system&apos;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The edit should end up like this:&lt;/p&gt;
 
@@ -610,7 +610,7 @@ microk8s kubectl port-forward &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; m
   &lt;li&gt;Get the RPi’s MAC address on wlan0 by running:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;ip addr show wlan0 | &lt;span class=&quot;nb&quot;&gt;grep link&lt;/span&gt;/ether | &lt;span class=&quot;nb&quot;&gt;awk&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{print $2}'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;ip addr show wlan0 | &lt;span class=&quot;nb&quot;&gt;grep link&lt;/span&gt;/ether | &lt;span class=&quot;nb&quot;&gt;awk&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;{print $2}&apos;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Create a Network-DHCP binding on my home network router’s admin portal (192.168.1.1). I bound the RPi’s MAC address to the static IP address &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;192.168.1.10&lt;/code&gt;.&lt;/li&gt;
@@ -652,7 +652,7 @@ microk8s kubectl port-forward &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; m
 interface=eth0
 &lt;span class=&quot;c&quot;&gt;# Listen on the static IP address 10.0.0.1&lt;/span&gt;
 &lt;span class=&quot;nc&quot;&gt;listen&lt;/span&gt;-address=10.0.0.1
-&lt;span class=&quot;c&quot;&gt;# Enable dnsmasq's integrated DHCP server&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Enable dnsmasq&apos;s integrated DHCP server&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# and define 96 available address leases&lt;/span&gt;
 dhcp-range=10.0.0.32,10.0.0.128,12h
 &lt;span class=&quot;c&quot;&gt;# declare name servers&lt;/span&gt;
@@ -800,15 +800,15 @@ expand-hosts&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;    &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;urllib.parse&lt;/span&gt;
     
     &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;save_report&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse_qs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;keep_blank_values&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse_qs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;body&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;keep_blank_values&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
     
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'text'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&apos;text&apos;&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
             &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;END&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bad&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     
-        &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'text'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;text&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
         
         &lt;span class=&quot;c1&quot;&gt;# Respond with the text `send input`, expect data
-&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&apos;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
             &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;statusCode&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;“&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CON&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;send&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;”&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
         
         &lt;span class=&quot;c1&quot;&gt;# Parse url query string
@@ -937,7 +937,7 @@ The final step is automating this USSD action from an Android app. This part req
 
 &lt;p&gt;Where &lt;em&gt;“SimpleButton”&lt;/em&gt; is the Preact component name, &lt;em&gt;label&lt;/em&gt; is a prop and &lt;em&gt;“Start”&lt;/em&gt; is a prop value. And this is what gets rendered when you load the view on a browser:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“SimpleButton”&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-props=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“{'label':'Start'}”&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“SimpleButton”&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-preact-props=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;“{&apos;label&apos;:&apos;Start&apos;}”&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;That’s the first part. The second part of the project is an npm package, &lt;a href=&quot;https://www.npmjs.com/package/preact_ujs&quot;&gt;preact_ujs&lt;/a&gt;. (UJS stands for Unobtrusive JavaScript). This package takes the div rendered above and inflates the named Preact component. This is the complex part but I’ll try make it comprehendible.&lt;/p&gt;

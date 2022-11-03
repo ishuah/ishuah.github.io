@@ -1,5 +1,5 @@
 # ishuah.com 
 
-The web that I spin.
+My personal interface to the world.
 
 
