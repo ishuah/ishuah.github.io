@@ -1,6 +1,6 @@
 #-------------------------------
 # General Site Settings
-title: Ishuah Kariuki
+title: Ishuah
 logo: # You can add own logo. For example '/images/logo.png'.
 description: Free Spirit
 baseurl: "" # The subpath of your site, e.g. /blog
@@ -17,8 +17,8 @@ author:
 #-------------------------------
 # Hero Settings
 hero:
-  title: Hello 
-  description: Call me Ish. I'm a husband, father, software engineer, adventurer, and full-time bonhomie. I write about computer science topics I find interesting and occasional short fiction.
+  title: Call me Ish
+  description: I'm a husband, father, software engineer, adventurer, and full-time bonhomie. I write about computer science, software engineering, and the occasional short fiction.
   image: '/images/01.jpg'
 
 
