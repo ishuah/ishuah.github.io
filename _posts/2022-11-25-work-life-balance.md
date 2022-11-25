@@ -29,7 +29,7 @@ On the last weekend of January 2022, Mel and I attended Fancy Finger's concert a
 
 I remember this night because we found out we were pregnant the very next day. We were scared, happy, shocked, joyful, a blend of emotions. We made our decision.
 
-Seven months, twenty-two days later, we welcomed Mansa to the world. That was the most life-changing of all my life-changing moments. Life became fuller. In those seven months, I proposed, and we built a home. We didn't do it alone. I'm grateful for the support structure we have. My mum bought a shipment of baby clothes that will last till Mansa is 5. My mother-in-law traveled eight hours to see her granddaughter as soon as she was born. My father, always with a somber expression, speaks fatherly advice. I cannot fail to mention Esther, my cousin, and our doula. She labored with Mel, taught me how to wash my daughter, and is always a phone call away when we have questions.
+Seven months, twenty-two days later, we welcomed Mansa to the world. That was the most life-changing of all my life-changing moments. Life became fuller. In those seven months, I proposed, and we built a home. We didn't do it alone. I'm grateful for the support structure we have. My mum bought a shipment of baby clothes that will last till Mansa is 5. My mother-in-law traveled eight hours to see her granddaughter as soon as she was born. My father, always with a somber expression, speaks fatherly advice. I cannot fail to mention Esther, my cousin, and our doula. She labored with Mel, taught me how to bathe my daughter, and is always a phone call away when we have questions.
 
 This essay started with a purpose, but, like every conversation, I ended up talking about my daughter. 
 
