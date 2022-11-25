@@ -4,7 +4,7 @@ title: "Work-Life Balance"
 description: I will end up talking about my daughter
 date: 2022-11-24 19:12:38
 image: '/images/family.jpg'
-tags: [memory-management, garbage-collection]
+tags: [family]
 ---
 
 I thought I knew what work-life balance meant. I was a happy-go-lucky bachelor with very little care in the world. I could stay up late, finish a week's worth of work and then run to the nearest beach to enjoy life. I dedicated months to purely training for half marathons and climbed Kilimanjaro twice, once on a whim.
