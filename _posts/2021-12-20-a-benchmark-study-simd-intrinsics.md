@@ -81,7 +81,11 @@ I expected `dot_product_256` to be faster, but I did not anticipate the big gap.
 
 ### analysis I
 
-<iframe width="760px" height="760px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXAEx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApJIBCZ86SX1kBPAMqN0AYVS0AriwYhpLgBk8BkwAOW8AI0xiEABmDVIAB1QFQkcGdy8fPySUtIEgkPCWKJj4m0w7BwEhAiZiAkzvX2lbTHt02vqCQrDI6LiEhTqGpuzWkZ7gvpKB%2BIBKG1RPYmR2DjNY4OQvLABqE1jXJgUlBoA6BEPsEw0AQU3t3cwDo7wWFmCCYmDL69uHvcAPRAvbDYhMPDABAEfjEADu9XQe3eiXobEETGqDABVFoqCxe3QqAIAH1EsQMJ57NR8YSAFRMUh7PEEgh7ekRZmpABemFJ7IY8wOAHZLPc9iy6eyFN5XgARPYaQ7iu6StAMYZStn0va0d6EBV7JgHCx7HGxVWSuF7CCvczG16uPUGggq41WKzMiKeizCkxigGSyWylimyyxRVMEwAVnMypjit1PrjCflKqDovTEr2xEwBBWDDB3gz9wD2cBdxBezuADUABqSFEsNGYDF1bG46VEknkynoalkyQxgBstLZHKZ2oZXLBeD5AvN/sDOclJzOBAgRbMMb2AA4FYdFRp5qW1cHSaSWMOR8Ww0e9lfr6PSUoCHzKeSFBBT5bM8HeX5dl9U%2BdkHyLABaPYRTPf9rRIW1AMXPAjWVS0USdF1QPdFDPUjfdlytYNJUvZ9bwiTwqC4I0nxvUk6QHL8IBNKwUV/IjiNIm89goqgmwfWiXwYzwmIicM2LPYiQzlASPjoqgWCYdB0FEyiuG9SjpDvdi4PLAE4NZQleKoaJY3MPdY3TP9V0fOSX2GEhMBExJv2M6JuW8HSbLzAtiCLNziDMtNxICsyuEskLKJMwK40kCLWNCuNYnis1EvMAAWFKHTSmMsrgqS0pHLKeKi0y4xgxNYJFeUOEWWhOBjXhfA4LRSFQThXF9B0FGWVYXk2HhSAITRasWABrEAYwSeqOHSpqRrazheAUEAEmGlratIOBYCQNAWzodyKAgPbEgOmIdkMYApA0BIaFoAhohWiAIgWiJgnqABPThBr29sAHkGFoL6NtILBFKMcQQfwPMOgAN0wFaQcwVR2k8B7vt4L5KgW/UIghYgPvcLAFu%2Bd4McWPEmGABRazwTB4T%2BxJGAxmRBBEMR2CkVn5CUNQFt0dSDCMFAuv0PAIhW2BmDYEAogYZAEEU4gxtIeGYm4dKtHmRZUESbFEYg4Z0CPUwLCsSQND2CCWBHdKrb%2B2IraVhWj2YBx4eWyp2mxZwGDcDxmj0QJpmKUo9GSVJsTGXx1Ij/IGF6UOBnUtoOhqSZo70VPsS6BpE/6GIU4zgPsiL7p89mQvFh6lY1j0b5MHWHg6oa%2BaQfajhVD3EcINtvYLqMPYpHODQR9tTqzYsZlcEIBCBuZdx9voYhTViLh5l4datfGybps4ObSGa1qO%2BW1ahpG7X9E4SQ2%2BPpbz42y%2B1dSJx0qAA%3D%3D"></iframe>
+You can view the full analysis on [Compiler Explorer](https://godbolt.org/z/G1aG5xf3q).
+
+<figure>
+  <img class="inverted-svg" src="/images/compiler-explorer-analysis-i.png">
+</figure>
 
 The scalar implementation has three AVX instructions corresponding to the loop statement `sum += a[0] * b[0];`:
 - [vmovss](http://www.felixcloutier.com/x86/MOVSS.html) unloads the pointer value `a[0]` into a 128 bit register. 
@@ -89,6 +93,11 @@ The scalar implementation has three AVX instructions corresponding to the loop s
 - [vaddss](http://www.felixcloutier.com/x86/ADDSS.html) adds the result from the multiplication operation above to `sum`.
 
 Compare that with the vectorized implementation instructions:
+
+<figure>
+  <img class="inverted-svg" src="/images/compiler-explorer-analysis-i-avx.png">
+</figure>
+
 - [vmovups](http://www.felixcloutier.com/x86/MOVUPS.html) loads eight floating-point values from `a` into a SIMD register.
 - [vfmadd231ps](http://www.felixcloutier.com/x86/VFMADD132PS%3AVFMADD213PS%3AVFMADD231PS.html) multiplies the eight floating-point values loaded from `a` with eight floating-point values loaded from `b` and adds the result to `sum`.
 
@@ -118,7 +127,11 @@ Both functions benchmark at almost equal speeds. `dot_product_256` has the bigge
 
 ### analysis II
 
-<iframe width="760px" height="800px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXAEx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApJIBCZ86SX1kBPAMqN0AYVS0AriwYhJ0lwAZPAZMADlvACNMYhAATlIAB1QFQkcGdy8fP2lk1IcBYNCIlmjYhNtMe3ShAiZiAkzvX38bTDsChlr6giLwqJj4mzqGpuzWhRHekP7SwbiAShtUT2Jkdg4zAGYQ5C8sAGoTLdcmBSUGgDoEY%2BwTDQBBbd39zCOTvBYWEIJiEOvbvcno8APQgg6TYhMPDABAEfjEADu9XQB0%2BiXobEETE6QKotFQOIO6FQBAA%2BoliBhPPZqASiQAqJikA74wkEA4MyIs1IAL0wZI5DAWRwA7JZHgdWfSOQpvO8ACIHDTHCUPKVoBiTaXshkHWifQiKg5MI4WA4MVVAqUIg4Qd7mE3vVz6w0EVUmqxWFmRL0WEUmcXWqUQ%2BVerZKpgmACs5hV0aVet9sfjCqtkrFaYzxEwBFWDFDLHTT1FWeBDzBBweADUABqSNEsDGYLF1XGPNlEknkynU%2BxkyTRgBsdPZnOZOsZ3IheH5gotAaDGalZwuBAgBbM0YOAA5FcclRoFsWQwcyWSWIOh4XjRfL8OyUoCPyqRSFBBj1s1aeZ3OOQbvg5A8LQOABaA5RWLYMQ1tCA%2BQFDk8GNFUvzRZ1XUAj0kPDJUd0Xb8f3Pe9r0iTwqC4W8vivMl6XQTw3wgU0rDRT8CNPIirwOUiqAbYC72o2j6MSd9IjNR08FY6CQzlFhKOIskqBYJh0HQBjuK4H0yOkQtJOXTMgSkzsOW4qgYhjcwdxjNMvyk/iH0mEhMCEkSyNMsgdJPEMczzYgCxMsyUyssSuNcgLzC4ILmP84hzMkSLzWi8ytnix1EtjAAWFKQqoNzzOjFKpJ/NLzCHLLisghMoNLDglloTho14XwOC0UhUE4Vw/UdBQVjWN5th4UgCE0GqlgAaxAaMNH0Th0sa4bWs4XgFBAKahuamrSDgWAkDQJs6BichKF2xJ9tiPZDGAKQNCmmhaAIGJlogSJ5siEJ6gAT04AbdtbAB5BhaE%2B9bSCwJSjHEYH8BzaoADdMGW4HMFUKpPHur7eB%2Bdp5oNSIoWId73Cwebfk%2BdGlnxJhgAUas8EwRFfsSRh0ZkQQRDEdgpBZ%2BQlDUebdA0gwjBQTr9DwSJltgZg2BAaIGGQBAlOIUbSDh2JuHSrQFiWVBEk6BHQMmdAD1MCwrEkDQwJYId0rA36tkt%2Bp5YPZgHDhsCcrOAhQKUggECW9oqk6ZwGDcDxmhAIctlIIIZhKMoQC2UUkhSNIBDGXwEjyVOGD6OPBkTtoOhqKZ04jqPKmqARugaXOBliAvJh6UuKimWu5nr0Ulm61Z1j0X5MA2HhavqubgbajhVB3IdQOtg5zqMA4pEuDRl7tDrTYsFlcEIEgzS2DSDncPb6GIPeuAWXg1s1saJqmuqOFm0gmpa8elpWwbhq16aOEkUeX8Wj%2B60v6q1SE4dKQA%3D"></iframe>
+You can view the full analysis on [Compiler Explorer](https://godbolt.org/z/nv4ebcPq4)
+
+<figure>
+  <img class="inverted-svg" src="/images/compiler-explorer-analysis-ii.png">
+</figure>
 
 The scalar implementation compiled looks very different. The loop statement `sum += a[0] * b[0];` now has 29 corresponding Assembly instructions. The compiler applied [loop unrolling](https://en.wikipedia.org/wiki/Loop_unrolling), an optimization strategy that minimizes the cost of loop overhead. The loop unrolls in four iterations. By examining one iteration, you'll notice the use of 256 bit registers and SIMD intrinsics.
 
