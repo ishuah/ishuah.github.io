@@ -9,7 +9,7 @@ tags: [family, australia]
 
 _Mel and Mansa dining al fresco at Café Melograno_
 
-Mel, Mansa, and I spent the whole month of February in Australia. Why Australia? Because 11 years ago, a feisty 19-year-old Kenyan landed in Perth at the peak of summer, the heat barely melting her excitement. All her hard work paid off, and she got accepted at Edith Cowan University. Over the next five years, she earned her tuition, studied, and graduated at the top of her class. Years later, she captured my heart, and we started our life together. This feisty woman is Mel. This trip was a journey into her early years.
+Mel, Mansa, and I spent the whole month of February in Australia. Why Australia? Because 11 years ago, a feisty 19-year-old Kenyan landed in Perth at the peak of summer, the heat barely melting her excitement. All her hard work paid off, and she got accepted at Edith Cowan University. Over the next five years, she earned her tuition, studied, and graduated nearly top of her class. Years later, she captured my heart, and we started our life together. This feisty woman is Mel. This trip was a journey into her early years.
 
 One of the first places we visited was Café Melograno, a cornerstone in Mel's early adulthood. She worked here four out of the five years she spent in Perth. When I first saw it, I realized it was much bigger than what I'd pictured from Mel's stories. It felt like I was visiting the set of a movie I'd watched countless times. I saw the iconic La Marzocco coffee machine, where she excelled as a barista, and the royal blue awning, which took months to set up because of council restrictions. I also recognized the "dog parking" tree at the front, where patrons left their loyal companions for the company of humans.
 
