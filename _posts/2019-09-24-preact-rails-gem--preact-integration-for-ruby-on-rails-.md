@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Preact-Rails Gem&#58; Preact integration for Ruby on Rails.
+title: "Preact-Rails Gem: Preact integration for Ruby on Rails"
 description: We're happy to announce a new open source gem, preact-rails!
 date: 2019-09-24 00:00:00
 image: /images/22.jpg

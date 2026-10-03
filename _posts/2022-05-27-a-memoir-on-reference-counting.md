@@ -7,8 +7,6 @@ image: '/images/garbage-collection.jpg'
 tags: [memory-management, garbage-collection]
 ---
 
-_Photo by <a href="https://unsplash.com/@gary_at_unsplash?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Gary Chan</a> on <a href="https://unsplash.com/s/photos/garbage-collection?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>_
-
 
 In 1960, John McCarthy published a paper titled [Recursive Functions of Symbolic Expressions and Their Computation by Machine, Part I](http://www-formal.stanford.edu/jmc/recursive.pdf). In it, he meticulously describes the original implementation of Lisp, the second oldest programming language still in use. As part of the language, McCarthy describes an algorithm that automatically reclaims memory. He calls it a "reclamation cycle", but in a footnote added in 1995, he writes:
 

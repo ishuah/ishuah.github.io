@@ -1,90 +1,56 @@
-#-------------------------------
-# General Site Settings
-title: Ishuah
-logo: # You can add own logo. For example '/images/logo.png'.
-description: Free Spirit
-baseurl: "" # The subpath of your site, e.g. /blog
-url: "https://ishuah.com" # The base hostname & protocol for your site, e.g. http://example.com
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+#
+# If you need help with YAML syntax, here are some quick references for you:
+# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
+# https://learnxinyminutes.com/docs/yaml/
+#
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
 
+title: Ishuah Kariuki
+email: kariuki@ishuah.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Ishuah Kariuki is a software engineer and SRE specializing in AI safety and alignment.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://ishuah.com" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: ishuah_
+github_username:  ishuah
 
-#-------------------------------
-# Author Settings
-author:
-  name: Ishuah Kariuki
-  avatar: '/images/15.jpg'
-
-
-#-------------------------------
-# Hero Settings
-hero:
-  title: Call me Ish
-  description: I'm a husband, father, software engineer, adventurer, and full-time bonhomie. I write about computer science, software engineering, and the occasional short fiction.
-  image: '/images/01.jpg'
-
-
-#-------------------------------
-# Contact Settings
-contact:
-  email: your@email.com # Add your email for contact form
-  description: Norlin comes with a built-in contact form, that you can use with Formspree service to handle up to 50 submissions per month for free. You could also easily switch to another contact form service if you want. # Add a description of your form
-
-# NOTE
-# Norlin theme comes with a contact form built-in. You can use this form with Formspree (https://formspree.io/) service and get up to 50 submissions for free. Also, you can easily switch to another service if you want.
-
-
-#-------------------------------
-# Footer section
-# Example of adding a new link to the footer - {icon: "ion-logo-github", link: "https://github.com"}
-# Other icons can be found at https://ionicons.com/v4/
-social:
-- {icon: "ion-logo-twitter", link: "https://twitter.com/ishuah_"}
-- {icon: "ion-logo-instagram", link: "https://instagram.com/is.huah/"}
-- {icon: "ion-logo-github", link: "https://github.com/ishuah"}
-
-
-#-------------------------------
-# Comment Section (Disqus)
-disqus-identifier: # Add your shortname for Disqus Comment. For example anvodstudio-demo
-
-
-#-------------------------------
-# Google Analytics
-google-analytics: G-988SLQZYDZ
-
-
-#-------------------------------
-# Newsletter
-mailchimp:  # To enable the mailchimp form, use the value 'enable'. To disable the form, leave the field blank.
-mailchimp-identifier: # Add your MailChimp form identifier. For example - blogenjoyfreedom.us16.list-manage.com/subscribe/post?u=cd56155d76ddeeb4c0bc4d080&amp;id=7a526cd13e
-
-
-#-------------------------------
 # Build settings
-markdown: kramdown
+theme: minima
 permalink: pretty
 plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll/tagging
+  - jekyll-feed
 
-paginate: 8
-paginate_path: "/page/:num"
+# Exclude from processing.
+# The following items will not be processed, by default.
+# Any item listed under the `exclude:` key here will be automatically added to
+# the internal "default list".
+#
+# Excluded items can be processed by explicitly listing the directories or
+# their entries' file path in the `include:` list.
+#
+# exclude:
+#   - .sass-cache/
+#   - .jekyll-cache/
+#   - gemfiles/
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules/
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
 
-# Pages Path
-defaults:
-  - scope:
-      path: '_pages'
-    values:
-      permalink: /:basename:output_ext
-
-include:
-  - _pages
-
-# Tags
-tag_page_dir:         tag
-tag_page_layout:      tag_page
-tag_permalink_style:  pretty
-
-sass:
-  sass_dir: _sass
-  style: compressed
+google_analytics: G-988SLQZYDZ

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Design Patterns&#58; A Retrospective
+title: "Design Patterns: A Retrospective"
 description: Design Patterns are a subjective choice in an objective discipline. If all else fails, KISS.
 date: 2019-03-25 08:00:24
 image: '/images/21.jpg'

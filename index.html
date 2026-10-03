@@ -1,48 +1,22 @@
 ---
-layout: default
+# Feel free to add content and custom Front Matter to this file.
+# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
+
+layout: home
 ---
 
-<!-- begin hero -->
-{% if site.hero.image %}
-<section class="hero">
-  <div class="hero__inner">
-    <div class="hero__image">
-      <img class="lazy" data-src="{{site.baseurl}}{{site.hero.image}}" alt="{{site.hero.title}}">
-    </div>
-    <div class="hero__content">
-      <h1 class="hero__title">{{site.hero.title}}</h1>
-      <p class="hero__desc">{{site.hero.description}}</p>
-    </div>
-  </div>
-</section>
-{% else %}
-<section class="hero-without-image">
-  <div class="hero-inner">
-    <div class="hero-content">
-      <h1 class="hero__title">{{site.hero.title}}</h1>
-      <p class="hero__desc">{{site.hero.description}}</p>
-    </div>
-  </div>
-</section>
-{% endif %}
-<!-- begin hero -->
+<h3>Call Me Ish</h3>
 
-{% include featured-posts.html %}
+<input type="checkbox" id="bio-toggle" class="bio-checkbox">
 
-<div class="container">
-  <div class="row">
-    <div class="col col-12">
-      <div class="container__inner">
-        <div class="row grid">
-          {% if site.posts.size > 0 %}
-            {% for post in paginator.posts %}
-              {% include article-content.html %}
-            {% endfor %}
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="bio-initial-content">
+  <p>Ishuah Kariuki is a husband, father, software engineer, and SRE. He graduated from Kenyatta University in 2011 with a BSc. in Computer Science. He's worked with several startups in the Kenyan tech ecosystem and most recently at Microsoft.</p>
 </div>
 
-{% include pagination.html %}
+<div class="bio-extra-content">
+  <p>Ishuah is currently exploring AI safety and alignment, as well as other paths at the intersection of humans and AI.</p>
+  <p>Ishuah prefers the short form moniker "Ish". He's available to chat about various topics, a game of chess, or a run around Nairobi. You can reach out to him on X <a href="https://X.com/ishuah_">@ishuah_</a>, collaborate on <a href="https://github.com/ishuah">Github</a>, or contact him by email at <a href="mailto:kariuki@ishuah.com">kariuki@ishuah.com</a>.</p>
+</div>
+
+<label for="bio-toggle" class="bio-more-btn">...More</label>
+

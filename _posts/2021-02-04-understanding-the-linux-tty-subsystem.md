@@ -7,8 +7,6 @@ image: '/images/26.jpg'
 tags: [linux, tty]
 ---
 
-_Photo by <a href="https://unsplash.com/@_imkiran?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Sai Kiran Anagani</a> on <a href="https://unsplash.com/s/photos/linux?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a>_
-
 TTY stands for TeleTYpe. If you Google the word teletype, a picture of a device that looks like a typewriter shows up. How did a typewriter become an essential part of the Linux operating system?
 
 ## how it all started

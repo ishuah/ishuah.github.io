@@ -7,8 +7,6 @@ image: '/images/27.jpg'
 tags: [linux, tty, terminal-emulator]
 ---
 
-_Photo by <a href="https://unsplash.com/@ngeshlew?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Lewis Ngugi</a> on <a href="https://unsplash.com/photos/f5pTwLHCsAg">Unsplash</a>_
-
 In a previous [article](https://ishuah.com/2021/02/04/understanding-the-linux-tty-subsystem/), I wrote a brief introduction to the current state of the TTY Subsystem. This article builds on the concepts covered in that article, adding a practical understanding of how the TTY Subsystem works. We're building a simple [terminal emulator](https://en.wikipedia.org/wiki/Terminal_emulator) in Golang. This installment is the second article in my 'terminal emulator' series.
 
 ## the user interface

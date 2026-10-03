@@ -7,8 +7,6 @@ image: '/images/numbers.jpg'
 tags: [SIMD, AVX2, vector-intrinsics]
 ---
 
-_Photo by <a href="https://unsplash.com/@enric_moreu?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Enric Moreu</a> on <a href="https://unsplash.com/s/photos/math-numbers?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>_
-
 A few weeks ago, I came across this interesting paper, [Parsing Gigabytes of JSON per Second](https://cs.paperswithcode.com/paper/parsing-gigabytes-of-json-per-second). 2.5 Gigabytes of JSON per second on commodity processors, to be precise. Three pages into the paper, I discovered that I needed more background knowledge on [SIMD](https://en.wikipedia.org/wiki/SIMD) instructions. SIMD is like the Mona Lisa, I have an idea of what it looks like, but that representation is far from the actual painting. After reading a few articles and numerous build errors later, I’m confident enough to write on the topic.
 
 <figure>
