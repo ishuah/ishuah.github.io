@@ -2,7 +2,7 @@
 layout: post
 title: "PHP2Shell And The Threat of Memory Safety Vulnerabilities"
 description: "Undelying Memory-Unsafe Languages are a threat to critical web infrastructure"
-date: 2026-10-27 08:00:00
+date: 2026-10-30 08:00:00
 ---
 
 In August 2026, researchers from [Calif](https://calif.io/) and [Wiz](https://www.wiz.io/) discovered the PHP2Shell vulnerabilities ([CVE-2026-109618](https://www.cve.org/CVERecord?id=CVE-2026-109618) and [CVE-2026-109619](https://www.cve.org/CVERecord?id=CVE-2026-109619)). They reported the findings to the PHP Foundation, and a team began engineering a patch. Both vulnerabilities were assigned a [critical CVSS v4.0 score of 9.2](https://news-web.php.net/php.announce/509). Coordinated disclosure was planned for October 22, 2026.
