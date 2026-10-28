@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "PHP2Shell And The Threat of Memory Safety Vulnerabilities"
+title: "The C Memory Safety Issue That Caused PHP2Shell"
 description: "Undelying Memory-Unsafe Languages are a threat to critical web infrastructure"
 date: 2026-10-27 18:00:00
 ---
